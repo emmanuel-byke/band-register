@@ -79,7 +79,7 @@ export default function OverlayDetails(props) {
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
             onClick={handleClose}>
             <div 
-              className={`${bgColor} p-8 rounded-xl shadow-2xl ${size} mx-4 relative 
+              className={`bg-transparent pt-8 rounded-xl ${size} relative 
                 flex flex-col flex-wrap justify-center items-center`}
               onClick={(e) => e.stopPropagation()}>
               <div className="absolute top-0 right-0">

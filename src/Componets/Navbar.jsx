@@ -10,10 +10,14 @@ export default function Navbar(props) {
     const{ setLoggedIn, loggedIn } = useContext(AppContext)
     const{ userId, setUserId } = useContext(AppContext)
     const{ user, setUser } = useContext(AppContext)
-
     const profileNavigator = useNavigate();
+    const adminNavigator = useNavigate();
+
     const handleProfileNavigation = () => {
         profileNavigator('userprofile');
+    }
+    const handleAdminNavigation = () => {
+        adminNavigator('admin');
     }
 
     return(
@@ -57,6 +61,7 @@ export default function Navbar(props) {
                                 showDropDownIcon={false}  
                                 menuItems={[
                                     {label:"Profile", onClick: ()=>{handleProfileNavigation()}, styles: ""},
+                                    {label:"Admin", onClick: ()=>{handleAdminNavigation()}, styles: "text-green-400 hover:text-green-600"},
                                     {label:"Settings", onClick: ()=>{}, styles: ""},
                                     {label:"Log Out", onClick: ()=>
                                         {

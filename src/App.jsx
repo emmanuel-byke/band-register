@@ -5,6 +5,7 @@ import HomePage from './Componets/HomePage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthForm from "./Componets/AuthForm";
 import Profile from "./Componets/Profile";
+import AdminSite from "./Componets/AdminSite";
 
 
 
@@ -20,6 +21,7 @@ function App() {
           <Route path='/instrument/detail/:id' Component={Details} />
           <Route path='/auth' Component={AuthForm} />
           <Route path='/userprofile' Component={Profile} />
+          <Route path='/admin' Component={AdminSite} />
         </Routes>
       </Router>
   )

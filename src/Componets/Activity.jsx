@@ -33,16 +33,17 @@ export default function Activity(props) {
                     customComponent={true}
                     bgColor="bg-gradient-to-t from-gray-700 to-white"
                     item={()=>
-                    <div className="flex flex-col">
-                        <h1 className="text-gray-800 text-xl font-poppins font-bold">{props.data.title}</h1>
-                        <div className="flex flex-row">
-                            { props.data.host.user.length>=0 && <p>Host: </p> }
-                            {
-                                props.data.host.user.map((h, indx)=>(
-                                    <p key={indx}>{capitalize(`${h.details.firstname} ${h.details.lastname}`)}, </p>
-                                ))
+                    <div className="shadow-2xl hover:shadow-emerald-500">
+                            { 
+                                props.data.showPoster && (
+                                    <img 
+                                        src={props.data.poster}
+                                        alt={props.data.title}
+                                        className="max-h-130"
+                                    />
+                                )
                             }
-                        </div>
+                            
                     </div>
                     }
                 />

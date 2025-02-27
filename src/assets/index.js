@@ -14,6 +14,9 @@ import user4 from './users/snow-white.jfif';
 import user5 from './users/tangled.jfif';
 import user6 from './users/zootopia.webp';
 import locationIco from './location.svg';
+import sundayServicePoster from './sunday-service.avif'
+import mountainServicePoster from './mountain-service.jpg'
+import crusadeServicePoster from './crusade1.png'
 
 
 
@@ -224,10 +227,6 @@ const user_6 = user(7, "Gift", "Kalulu", "gibo", user6, [div1, div4, div2], feed
 export const users = [ user_0, user_1, user_2, user_3, user_4, user_5, user_6 ]
 
 
-
-const host_0 = {user:[user_0], desc: "Pastor B is the holy man of God"};
-const host_1 = {user:[user_1, user_2], desc: "The Victory is the established community of well wishers"};
-const host_2 = {user:[user_3], desc: "The hand that giveth is more blessed than that receives"};
 export const pendingActivities = [
     {
         title: "City Center Church Crusade", 
@@ -235,7 +234,8 @@ export const pendingActivities = [
             together people from all walks of life to celebrate faith, hope, and community. Our dynamic speakers and passionate worship 
             leaders will guide you through a journey of spiritual renewal and growth.`, 
         venue: venue5, 
-        host: host_0, 
+        showPoster: true, 
+        poster: crusadeServicePoster,
         picture: user0,
         date: "2025-02-19",
         time: "02:00",
@@ -246,7 +246,8 @@ export const pendingActivities = [
             to God and to help you find strength, hope, and inspiration for the week ahead. Whether you're a regular attendee or a 
             first-time visitor, you'll feel right at home in our welcoming community.`, 
         venue: venue4, 
-        host: host_1, 
+        showPoster: true, 
+        poster: sundayServicePoster, 
         picture: user1,
         date: "2025-02-19",
         time: "02:00",
@@ -257,7 +258,8 @@ export const pendingActivities = [
             of nature, this special gathering offers a perfect setting for worship, reflection, and spiritual growth. Experience the 
             power of God's creation as we come together to praise and seek His presence.`, 
         venue: venue6, 
-        host: host_2, 
+        showPoster: true, 
+        poster: mountainServicePoster, 
         picture: user4,
         date: "2025-02-19",
         time: "02:00",
@@ -270,6 +272,9 @@ export function capitalize(str) {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+}
+export function getAllUsers() {
+    return users;
 }
 export function getUser(id) {
     return users.find(u=>u.id===id);
@@ -336,6 +341,42 @@ export function getStat(user, divId, startDate = null, endDate = null, sess_to_h
         absentByName: absent.byName,
         absentByDate: absent.byDate
     };
+}
+
+export function getAvgAttendance(users) {
+    let totalAttendance = 0;
+    let totalSessions = 0;
+    for(let i=0; i<users.length; i++) {
+        for(let j=0; j<users[i].divisions.length; j++){
+            for(let k=0; k<users[i].divisions[j].attendance.length; k++) {
+                totalAttendance += users[i].divisions[j].attendance[k].attendance;
+                totalSessions += users[i].divisions[j].attendance[k].sessions;
+            }
+        }
+    }
+    return totalSessions===0? 0 : (100*totalAttendance)/totalSessions;
+}
+
+export function getTopAbsenceReason(users, startDate=null, endDate=null) {
+    const result = [];
+    const nameIndexMap = new Map();
+    for(let i=0; i<users.length; i++) {
+        for(let j=0; j<users[i].divisions.length; j++){
+            const input = absentCal(users[i].divisions[j].absent, startDate, endDate).byName;
+            for(let k=0; k<input.length; k++) {
+                const { name, value } = input[k];
+                if (nameIndexMap.has(name)) {
+                    const index = nameIndexMap.get(name);
+                    result[index].value += value;
+                } else {
+                    result.push({ name, value });
+                    nameIndexMap.set(name, result.length - 1);
+                }
+            }
+        }
+    }
+    
+    return result.sort((a,b)=>b.value-a.value)[0];
 }
 
 function sortByDate(array) {
@@ -530,3 +571,31 @@ export function getFormattedTime(timeString) {
 export const getAllDiv = (user) => user.divisions
     .map(div=>({id: div.id, name: div.name, isReg: div.isRegistered}))
     .filter(u=>!u.isRegistered);
+
+export function getAllDivisions() {
+    return divisions;
+}
+
+
+export function getStructuredDivData() {
+    // const result = [];
+    // const nameIndexMap = new Map();
+    // for(let i=0; i<users.length; i++) {
+    //     for(let j=0; j<users[i].divisions.length; j++){
+    //         const input = absentCal(users[i].divisions[j].absent, startDate, endDate).byName;
+    //         for(let k=0; k<input.length; k++) {
+    //             const { name, value } = input[k];
+    //             if (nameIndexMap.has(name)) {
+    //                 const index = nameIndexMap.get(name);
+    //                 result[index].value += value;
+    //             } else {
+    //                 result.push({ name, value });
+    //                 nameIndexMap.set(name, result.length - 1);
+    //             }
+    //         }
+    //     }
+    // }
+    
+    // return result.sort((a,b)=>b.value-a.value)[0];
+    console.log(divisions);
+}
