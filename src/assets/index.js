@@ -474,7 +474,7 @@ export function selectVenueByDate(array, cutOff=3) {
             const dateB = new Date(`${b.date}T${b.from}`);
             return dateA - dateB;
         }); 
-    return upcomingEvents.slice(0, cutOff);
+    return cutOff? upcomingEvents.slice(0, cutOff): upcomingEvents;
 }
 
 export function selectActivityByDate(array, cutOff=null) {

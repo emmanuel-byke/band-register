@@ -25,7 +25,7 @@ export default function Activity(props) {
                     <h1 className="text-2xl font-bold text-white font-lora leading-tight">
                         {props.data.title}
                     </h1>
-                    <p className="text-gray-300 text-sm font-montserrat line-clamp-3">
+                    <p className="text-gray-300 text-sm font-montserrat line-clamp-6">
                         {props.data.desc}
                     </p>
                 </div>

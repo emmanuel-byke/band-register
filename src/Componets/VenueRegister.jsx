@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { capitalize, getDateDetails, getFormattedTime } from '../assets';
 
 export default function VenueRegister(props) {
-    const day = getDateDetails(props.data.date);
+    const day = capitalize(getDateDetails(props.data.date).date2);
     const startTime = getFormattedTime(props.data.from);
     const endTime = getFormattedTime(props.data.to);
 
@@ -42,7 +42,7 @@ export default function VenueRegister(props) {
                 <div className="flex flex-col items-center space-y-4">
                     <CheckCircle2 className="w-12 h-12 text-emerald-500" />
                     <h3 className="text-lg font-semibold text-gray-800 text-center">
-                        {capitalize(props.data.place)}
+                        {day} {capitalize(props.data.place)}
                     </h3>
                     <p className="text-sm text-gray-500 text-center">
                         {capitalize(`${props.name} ${props.data.role}`)}
@@ -87,7 +87,7 @@ export default function VenueRegister(props) {
                                     <div className="space-y-4">
                                         <div className="text-center">
                                             <p className="text-gray-600 mb-2">
-                                                {capitalize(`${day.dayName}, ${day.day} ${day.monthName} ${day.year}`)}
+                                                {day}
                                             </p>
                                             <p className="font-medium text-gray-800">
                                                 {startTime} - {endTime}

@@ -12,40 +12,45 @@ export default function PendingSchedules() {
     const { userId, loggedIn } = useContext(AppContext);
     const [unregisteredPage, setUnregisteredPage] = useState(1);
     const [pendingPage, setPendingPage] = useState(1);
-    const itemsPerPage = 4;
+    const itemsPerPageUnreg = 3;
+    const itemsPerPagePending = 4;
 
     if(!loggedIn) return null;
 
     const user = getUser(userId);
-    const pendingDiv = selectVenueByDate(user.divisions, itemsPerPage * 2);
-    const unregisteredDiv = getDivisionToRegister(user, itemsPerPage * 2);
+    const pendingDiv = selectVenueByDate(user.divisions, null);
+    const unregisteredDiv = getDivisionToRegister(user, null);
 
     const paginatedUnregistered = unregisteredDiv.slice(
-        (unregisteredPage - 1) * itemsPerPage,
-        unregisteredPage * itemsPerPage
+        (unregisteredPage - 1) * itemsPerPageUnreg,
+        unregisteredPage * itemsPerPageUnreg
     );
 
     const paginatedPending = pendingDiv.slice(
-        (pendingPage - 1) * itemsPerPage,
-        pendingPage * itemsPerPage
+        (pendingPage - 1) * itemsPerPagePending,
+        pendingPage * itemsPerPagePending
     );
 
     return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="mb-20 text-center" id="schedules">
+           
+            <div className="text-center mb-16" id="schedules">
                 <SectionDivider 
                     value="Schedules"
                     color="bg-blue-600"
                     borderColor="border-blue-100"
                 />
+                <h1 className="text-4xl font-bold text-gray-900 mt-8 font-lora">
+                    Manage All <span className="text-blue-600">Schedules</span>
+                </h1>
+                <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto font-montserrat">
+                    Respond to Attendance Register and View Pending Schedule
+                </p>
             </div>
 
             
             <div className="mb-20">
                 <div className="flex flex-col items-center mb-8">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                        Available Venues
-                    </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
                         {paginatedUnregistered.map((v, index) => (
                             <VenueRegister 
@@ -56,11 +61,13 @@ export default function PendingSchedules() {
                             />
                         ))}
                     </div>
-                    <Pagination
-                        currentPage={unregisteredPage}
-                        totalPages={Math.ceil(unregisteredDiv.length / itemsPerPage)}
-                        onPageChange={setUnregisteredPage}
-                    />
+                    {unregisteredDiv.length > itemsPerPageUnreg &&  <div className="mt-8">
+                        <Pagination
+                            currentPage={unregisteredPage}
+                            totalPages={Math.ceil(unregisteredDiv.length / itemsPerPageUnreg)}
+                            onPageChange={setUnregisteredPage}
+                        />
+                    </div>}
                 </div>
 
                 
@@ -105,11 +112,14 @@ export default function PendingSchedules() {
                     ))}
                 </div>
                 
-                <Pagination
-                    currentPage={pendingPage}
-                    totalPages={Math.ceil(pendingDiv.length / itemsPerPage)}
-                    onPageChange={setPendingPage}
-                />
+                {pendingDiv.length>itemsPerPagePending &&  <div className="w-full flex flex-row justify-center items-center mt-9">
+                    <Pagination
+                        currentPage={pendingPage}
+                        totalPages={Math.ceil(pendingDiv.length / itemsPerPagePending)}
+                        onPageChange={setPendingPage}
+                    />
+                </div>
+                }
             </div>
         </section>
     );
