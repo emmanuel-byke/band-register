@@ -1,32 +1,40 @@
 import { useState } from "react";
 import UserCard from "./UserCard";
+import Pagination from "./Pagination"; // Ensure you have this component
 
 export default function AllUsers(props) {
-    const cutOffLength = 4;
-    const [showAllUsers, setShowAllUsers] = useState(false);
-    const handleShowUsers = (e) => {
-        setShowAllUsers(prev=>!prev);
-    }
-    
-    return(
-        <header className="flex flex-col gap-8 w-full">
-            <div className="">
-                {
-                    props.users.length>cutOffLength?
-                    <h1 className="text-gray text-[30px] cursor-pointer font-montserrat-alt ml-9" 
-                        onClick={handleShowUsers}>
-                        {showAllUsers?"All": "Some"} {props.baseName}{props.users.length===1?"":"s"}
-                    </h1>:<></>
-                }
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
+    const totalPages = Math.ceil(props.users.length / itemsPerPage);
+    const paginatedUsers = props.users.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    return (
+        <div className="w-full space-y-8">
+
+            {/* Users Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
+                {paginatedUsers.map((user) => (
+                    <UserCard 
+                        key={user.id}
+                        user={user}
+                        userRole={user.divisions.find(d => d.id === props.divId).userRole}
+                    />
+                ))}
             </div>
-            
-            <div className={`w-full flex flex-row flex-wrap gap-20 justify-center `}>
-                {
-                    (!showAllUsers ? props.users.slice(0, cutOffLength) : props.users).map((user, indx)=>(
-                        <UserCard key={indx} user={user} userRole={user.divisions.find(d=>d.id===props.divId).userRole} />
-                    ))
-                }
-            </div>
-        </header>
+
+            {/* Pagination Footer */}
+            {totalPages > 1 && (
+                <div className="mt-8 flex justify-center">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            )}
+        </div>
     );
 }

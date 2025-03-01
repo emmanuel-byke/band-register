@@ -1,277 +1,207 @@
 import { useContext, useState } from "react";
 import { AppContext } from '../AppProvider';
 import { getUser } from "../assets";
-import React from "react";
 import { NavLink } from "react-router-dom";
+import { Settings, User, Bell, CreditCard, Activity, Shield } from "lucide-react";
 
 export default function Profile() {
-    const{ userId, loggedIn } = useContext(AppContext)
-    if(loggedIn) {
-        const user = getUser(userId);
-        const [isEdit, setIsEdit] = useState(true);
+    const { userId, loggedIn } = useContext(AppContext);
+    const [isEdit, setIsEdit] = useState(true);
+    
+    if(!loggedIn) return null;
+    
+    const user = getUser(userId);
+    const memberSince = new Date(user.createdAt).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
 
-        const handleSave = ()=> {
-            setIsEdit(!isEdit);
-        }
-
-        return (
-            <div className="min-h-screen bg-gray-50 flex flex-col font-roboto">
-
-                <header className="flex items-center justify-between px-8 py-4 bg-white shadow-sm">
-                    <div>
-                        <h1 className="text-xl text-gray-800 font-bold font-poppins">My Profile</h1>
-                        <p className="text-gray-500">Band Register membership portal</p>
-                    </div>
-
-                    <div className="flex flex-row justify-center gap-10">
-                        <NavLink
-                            to={'/'}>
-                            Home
+    return (
+        <div className="min-h-screen bg-gray-50 font-inter">
+            {/* Header */}
+            <header className="bg-white shadow-sm px-8 py-4 flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Member Dashboard</h1>
+                    <p className="text-gray-500 mt-1">Welcome back, {user.details.firstname}!</p>
+                </div>
+                
+                <div className="flex items-center gap-6">
+                    <nav className="flex gap-6">
+                        <NavLink to="/" className="text-gray-600 hover:text-indigo-600 flex items-center gap-2">
+                            <Activity className="w-5 h-5" /> Home
                         </NavLink>
-                        <a className="text-pink-500">Profile</a>
-                        <a>Settings</a>
-                    </div>
+                        <button className="text-indigo-600 flex items-center gap-2">
+                            <User className="w-5 h-5" /> Profile
+                        </button>
+                        <button className="text-gray-600 hover:text-indigo-600 flex items-center gap-2">
+                            <Settings className="w-5 h-5" /> Settings
+                        </button>
+                    </nav>
                     
-                    <div className="flex items-center space-x-4">
-                        <p className="text-gray-600 font-lora font-bold">{user.details.firstname} {user.details.lastname}</p>
-                        <img
-                            src={user.details.picture}
-                            alt="User avatar"
-                            className="w-10 h-10 rounded-full object-cover"
+                    <div className="flex items-center gap-4 ml-6">
+                        <div className="text-right">
+                            <p className="font-medium text-gray-900">{user.details.firstname} {user.details.lastname}</p>
+                            <p className="text-sm text-gray-500">{user.role}</p>
+                        </div>
+                        <img 
+                            src={user.details.picture} 
+                            alt="Avatar" 
+                            className="w-12 h-12 rounded-full border-2 border-indigo-100 object-cover"
                         />
                     </div>
-                </header>
+                </div>
+            </header>
 
-                <div className="flex flex-1">
-                    <aside className="w-64 bg-white shadow-sm p-6">
-                        <nav className="flex flex-col space-y-4">
-                            <a
-                                href="#dashboard"
-                                className="text-pink-500 font-medium hover:text-pink-600"
-                                >
-                                Overview
-                            </a>
-                            <a
-                                href="#accounts"
-                                className="text-gray-600 hover:text-pink-500"
-                                >
-                                Accounts
-                            </a>
-                            
-                            <a
-                                href="#complaints"
-                                className="text-gray-600 hover:text-pink-500"
-                                >
-                                Complaints
-                            </a>
-                        </nav>
-                    </aside>
-
-                    {/* Main Content */}
-                    <main className="flex-1 p-6 relative">                
-
-                    {/* Two-column layout for cards */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
-
-                        <div className="bg-white rounded-2xl shadow-2xl hover:shadow-gray-600 ">
-                            <div className="flex flex-col items-center  ">
-                                <img
-                                    src={user.details.picture}
-                                    alt="User avatar"
-                                    className="w-130 h-50 object-cover rounded-t-2xl cursor-pointer"
-                                />
-                                <div className="grid grid-cols-2 px-5 pt-5 w-full">
-                                    <h1 className="text-gray-800 font-bold font-poppins text-xl">My Profile</h1>
-                                    <div className="grid grid-cols-1 justify-items-end">
-                                        <p className="text-gray">username@bandregister</p>
-                                        <p className="text-gray">Member</p>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 px-5 w-full gap-14">
-                                    <div className="relative mt-4">
-                                        <input
-                                            type="text"
-                                            id="firstname"
-                                            placeholder=" "
-                                            className="block w-full px-3 py-2 bg-transparent border-0 border-b-2 border-gray-600 
-                                                appearance-none focus:outline-none focus:ring-0 focus:border-pink-500
-                                                text-gray-900 transition-colors peer"
-                                        />
-                                        <label
-                                            htmlFor="firstname"
-                                            className="absolute left-3 -top-3.5 text-gray-500 text-sm transition-all
-                                                    peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
-                                                    peer-placeholder-shown:top-2 peer-focus:-top-3.5 peer-focus:text-pink-500
-                                                    peer-focus:text-sm"
-                                        >
-                                            First Name
-                                        </label>
-                                    </div>
-                                    <div className="relative mt-4">
-                                        <input
-                                            type="text"
-                                            id="lastname"
-                                            placeholder=" "
-                                            className="block w-full px-3 py-2 bg-transparent border-0 border-b-2 border-gray-600 
-                                                appearance-none focus:outline-none focus:ring-0 focus:border-pink-500
-                                                text-gray-900 transition-colors peer"
-                                        />
-                                        <label
-                                            htmlFor="lastname"
-                                            className="absolute left-3 -top-3.5 text-gray-500 text-sm transition-all
-                                                    peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
-                                                    peer-placeholder-shown:top-2 peer-focus:-top-3.5 peer-focus:text-pink-500
-                                                    peer-focus:text-sm"
-                                        >
-                                            Last Name
-                                        </label>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 px-5 w-full gap-14">
-                                    <div className="relative mt-4">
-                                        <input
-                                            type="text"
-                                            id="phonenumber"
-                                            placeholder=" "
-                                            className="block w-full px-3 py-2 bg-transparent border-0 border-b-2 border-gray-600 
-                                                appearance-none focus:outline-none focus:ring-0 focus:border-pink-500
-                                                text-gray-900 transition-colors peer"
-                                        />
-                                        <label
-                                            htmlFor="phonenumber"
-                                            className="absolute left-3 -top-3.5 text-gray-500 text-sm transition-all
-                                                    peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
-                                                    peer-placeholder-shown:top-2 peer-focus:-top-3.5 peer-focus:text-pink-500
-                                                    peer-focus:text-sm"
-                                        >
-                                            Phone Number
-                                        </label>
-                                    </div>
-                                    <div className="relative mt-4">
-                                        <input
-                                            type="password"
-                                            id="password"
-                                            placeholder=" "
-                                            className="block w-full px-3 py-2 bg-transparent border-0 border-b-2 border-gray-600 
-                                                appearance-none focus:outline-none focus:ring-0 focus:border-pink-500
-                                                text-gray-900 transition-colors peer"
-                                        />
-                                        <label
-                                            htmlFor="password"
-                                            className="absolute left-3 -top-3.5 text-gray-500 text-sm transition-all
-                                                    peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500
-                                                    peer-placeholder-shown:top-2 peer-focus:-top-3.5 peer-focus:text-pink-500
-                                                    peer-focus:text-sm"
-                                        >
-                                            Password
-                                        </label>
-                                    </div>
-                                </div>
-                                
-
+            <div className="flex gap-8 p-8 max-w-7xl mx-auto">
+                {/* Sidebar */}
+                <aside className="w-64 flex flex-col gap-2">
+                    <nav className="bg-white rounded-xl p-4 shadow-sm">
+                        {[
+                            { icon: User, label: 'Profile', active: true },
+                            { icon: CreditCard, label: 'Billing' },
+                            { icon: Bell, label: 'Notifications' },
+                            { icon: Shield, label: 'Security' }
+                        ].map((item, index) => (
+                            <button 
+                                key={index}
+                                className={`w-full flex items-center gap-3 p-3 rounded-lg 
+                                    ${item.active ? 'bg-indigo-50 text-indigo-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                            >
+                                <item.icon className="w-5 h-5" />
+                                <span className="text-sm font-medium">{item.label}</span>
+                            </button>
+                        ))}
+                    </nav>
+                    
+                    <div className="bg-indigo-50 rounded-xl p-4 mt-4">
+                        <div className="flex items-center gap-3">
+                            <Shield className="w-5 h-5 text-indigo-600" />
+                            <div>
+                                <p className="text-sm font-medium text-gray-900">Membership Status</p>
+                                <p className="text-xs text-indigo-600">Premium Member</p>
                             </div>
-                            <div className="grid grid-cols-1 justify-items-center pb-5">
-                                <button
-                                    type='submit'
-                                    className={`max-w-2xl py-1 px-6 mt-8 text-[22px] text-white font-roboto-slab  rounded-4xl
-                                                bg-gradient-to-r ${isEdit?"from-orange-400 to-pink-500": 
-                                                "from-purple-500 to-blue-400"}
-                                                transform transition-all duration-200 hover:scale-105
-                                                active:scale-95 shadow-lg hover:shadow-xl active:shadow-md cursor-pointer`}
-                                    onClick={handleSave}
-                                    >
-                                    {isEdit?"Edit":"Save"}
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-6">
-                            
-                            <div className="bg-white rounded-xl shadow-2xl px-6 pt-2 hover:shadow-gray-600 ">
-                                <div className="flex items-center justify-center mb-4">
-                                    <h2 className="text-xl text-gray-900 font-bold font-poppins">Account Details</h2>
-                                </div>
-
-                                <div className="flex items-center space-x-4 mb-4">
-                                    <div className="flex flex-col justify-center items-center">
-                                        <p className="text-sm text-gray-900">Account is Active</p>
-                                        <p className="text-xs text-gray-700 py-1 px-3 rounded-2xl bg-emerald-300">Yes</p>
-                                    </div>
-                                    <div className="flex flex-col justify-center items-center">
-                                        <p className="text-sm text-gray-900">Date Created</p>
-                                        <p className="text-xs text-gray">19 February, 2025</p>
-                                    </div>
-                                    <div className="flex flex-col justify-center items-center">
-                                        <p className="text-sm text-gray-900">Warnings Received</p>
-                                        <p className="text-xs text-gray">0</p>
-                                    </div>
-                                </div>
-
-                                <ul className="space-y-3">
-                                    <li className="flex items-center justify-between">
-                                        <span className="text-gray-700 font-semibold">Uniform Fee</span>
-                                        <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-600">
-                                            Paid
-                                        </span>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span className="text-gray-700 font-semibold">Registration Fee</span>
-                                        <span className="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700">
-                                            Pending
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <div className="bg-white px-6 pt-2 rounded-2xl shadow-2xl hover:shadow-gray-600 ">
-                                <div className="flex items-center justify-center mb-4">
-                                    <h2 className="text-xl text-gray-900 font-bold font-poppins">Quick Stat</h2>
-                                </div>
-
-                                {/* Example status badges */}
-                                <div className="flex items-center space-x-4 mb-4">
-                                    <div className="flex flex-col justify-center items-center">
-                                        <p className="text-sm text-gray-900">Divisions Registered</p>
-                                        <p className="text-xs text-gray">3</p>
-                                    </div>
-                                    <div className="flex flex-col justify-center items-center">
-                                        <p className="text-sm text-gray-900">Pending Register</p>
-                                        <p className="text-xs text-gray">1</p>
-                                    </div>
-                                </div>
-
-                                {/* List of bills/dues with status pills */}
-                                <ul className="space-y-3">
-                                    <li className="flex items-center justify-between">
-                                        <span className="text-gray-700 font-semibold">Total Practice Hours</span>
-                                        <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-600">
-                                            127h
-                                        </span>
-                                    </li>
-                                    <li className="flex items-center justify-between">
-                                        <span className="text-gray-700 font-semibold">Admin Rating</span>
-                                        <span className="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700">
-                                            good member
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-
                         </div>
                     </div>
-                    </main>
-                </div>
+                </aside>
+
+                {/* Main Content */}
+                <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Profile Card */}
+                    <div className="bg-white rounded-2xl shadow-sm p-6">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
+                            <button 
+                                onClick={() => setIsEdit(!isEdit)}
+                                className={`px-4 py-2 rounded-lg font-medium transition-all
+                                    ${isEdit ? 
+                                        'bg-indigo-600 text-white hover:bg-indigo-700' : 
+                                        'bg-green-500 text-white hover:bg-green-600'}`}
+                            >
+                                {isEdit ? 'Edit Profile' : 'Save Changes'}
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium text-gray-700">First Name</label>
+                                    <input
+                                        type="text"
+                                        defaultValue={user.details.firstname}
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                                        disabled={isEdit}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium text-gray-700">Last Name</label>
+                                    <input
+                                        type="text"
+                                        defaultValue={user.details.lastname}
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                                        disabled={isEdit}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-sm font-medium text-gray-700">Email</label>
+                                <input
+                                    type="email"
+                                    defaultValue={user.email}
+                                    className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                                    disabled
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium text-gray-700">Phone Number</label>
+                                    <input
+                                        type="tel"
+                                        defaultValue={user.details.phone}
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                                        disabled={isEdit}
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-sm font-medium text-gray-700">Member Since</label>
+                                    <input
+                                        type="text"
+                                        defaultValue={memberSince}
+                                        className="w-full px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Stats Cards */}
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Overview</h2>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="p-4 bg-indigo-50 rounded-xl">
+                                    <p className="text-sm text-gray-600">Active Divisions</p>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">3</p>
+                                </div>
+                                <div className="p-4 bg-green-50 rounded-xl">
+                                    <p className="text-sm text-gray-600">Practice Hours</p>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">127h</p>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Membership Status</span>
+                                    <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">Active</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-600">Account Verified</span>
+                                    <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">Verified</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white rounded-2xl shadow-sm p-6">
+                            <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
+                            <div className="space-y-4">
+                                {[
+                                    { label: 'Last Login', value: '2 hours ago' },
+                                    { label: 'Upcoming Events', value: '3 sessions' },
+                                    { label: 'Pending Requests', value: '1 approval' }
+                                ].map((item, index) => (
+                                    <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                                        <span className="text-gray-600">{item.label}</span>
+                                        <span className="font-medium text-gray-900">{item.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </main>
             </div>
-        );
-    }
-    return <></>
-};
-
-
-{/* <div className="flex items-center justify-between mb-6">
-                                <span className="text-gray-700">SMS alerts activation</span>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                                    <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-pink-500 peer-checked:after:translate-x-5 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                                </label>
-                            </div> */}
+        </div>
+    );
+}

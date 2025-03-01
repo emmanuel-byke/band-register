@@ -1,96 +1,157 @@
 import { useLocation, useParams } from "react-router-dom";
-import { getDateDetails, getFormattedTime, getMean, getUsersByDivision, icons } from "../assets";
+import { Star, Users, Calendar, Quote } from "lucide-react";
+import { getDateDetails, getFormattedTime, getMean, getUsersByDivision } from "../assets";
 import AllUsers from "./AllUsers";
 import Navbar from "./Navbar";
 import InfoCard from "./InfoCard";
 import OverlayDetails from "./OverlayDetails";
+import { useState } from "react";
+import Pagination from "./Pagination";
 
 export default function Details() {
     const divisionId = parseInt(useParams().id, 10);
     const location = useLocation();
     const item = location.state;
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
     const members = getUsersByDivision(divisionId);
-
+    const paginatedMembers = members?.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     return (
-        <header className="w-full bg-[#151719]">
-            <nav>
-                <Navbar />
-            </nav>
-            <div className="flex flex-col w-full">
-                <div className="flex flex-row justify-center flex-wrap">
-                    <img 
-                        src={item.value}
-                        alt={item.name}
-                        className="w-[500px] h-[500px] object-contain transform transition-transform duration-300 hover:scale-120"
-                    />
-                    <div className="flex flex-col justify-center items-start gap-7">
-                        <h1 className="text-[60px] font-montserrat-alt font-bold">{item.name} <span className="text-red-400">
-                            {item.role}</span>
+        <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950">
+            <Navbar />
+            
+            <main className="max-w-7xl mx-auto px-6 py-12">
+                {/* Header Section */}
+                <div className="grid lg:grid-cols-2 gap-12 mb-16">
+                    <div className="relative group overflow-hidden rounded-3xl shadow-2xl">
+                        <img 
+                            src={item.value}
+                            alt={item.name}
+                            className="w-full h-full object-contain aspect-square transform transition-transform duration-300 
+                            group-hover:scale-105"
+                        />
+                    </div>
+                    
+                    <div className="space-y-6">
+                        <h1 className="text-5xl font-bold text-white font-montserrat">
+                            {item.name} 
+                            <span className="text-emerald-400 block mt-2">{item.role}</span>
                         </h1>
-                        {
-                            item.showRating?
-                                <div className="flex flex-row items-center gap-5">
-                                    <img 
-                                        src={icons.starIcon.value}
-                                        alt={icons.starIcon.name}
-                                        className="w-[50px] h-[50px] object-contain transform transition-transform duration-600 hover:scale-200"
-                                    />
-                                    <h1 className="text-[40px] h-13">{getMean(item.ratings)}</h1>
-                                    <h1 className="text-red-400 text-[50px]">|</h1>
-                                    <h1 className="text-[40px] h-13 underline cursor-pointer font-merienda">Rate now</h1>
-                                </div>:
-                                <></>
-                        }
                         
-                        <h2 className="text-red-400 text-[30px]">{item.shortWords}</h2>
+                        {item.showRating && (
+                            <div className="flex items-center gap-4 bg-gray-800/50 p-6 rounded-xl">
+                                <div className="flex items-center gap-2">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className={`w-8 h-8 ${i < getMean(item.ratings) ? 'fill-emerald-400 stroke-emerald-400' : 'stroke-gray-600'}`}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-2xl font-bold text-white">{getMean(item.ratings)}/5</p>
+                                    <button className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2">
+                                        <Star className="w-5 h-5" />
+                                        Rate Now
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {item.shortWords && (
+                            <blockquote className="text-2xl text-emerald-300 italic border-l-4 border-emerald-400 pl-4">
+                                "{item.shortWords}"
+                            </blockquote>
+                        )}
                     </div>
                 </div>
-                
-                {
-                    item.showVenue?
-                        <div className="mx-8 flex flex-row flex-wrap justify-center gap-8">
-                            {
-                                item.venue.map((v, indx)=>(
-                                    <OverlayDetails 
-                                        key={indx} 
-                                        showBtn={false} 
-                                        item={(e)=><InfoCard card={v} setIsOpen={e} />} 
-                                        
-                                        size=" max-w-2xl w-full h-60 "
-                                        title={`${getDateDetails(v.date).dayName} ${v.place}`}
-                                        desc={`${getDateDetails(v.date).day} ${getDateDetails(v.date).monthName} ${getDateDetails(v.date).year} 
-                                            From ${getFormattedTime(v.from)} To ${getFormattedTime(v.to)} ${v.role}`} 
-                                        onClick={()=>console.log("Confirmed")}
-                                        bgColor=" bg-gradient-to-b from-blue-400 to-gray-950 "
-                                        styles={`text-white px-6 py-2 rounded-lg transition-all font-semibold font-montserrat bg-blue-400 hover:bg-blue-700`}
-                                    />
-                                ))
-                            }
-                        </div>:<></>
-                }
-                
-                <div className="flex flex-col justify-center items-center mx-30 mt-30 gap-10">
-                    <h2 className="text-red-400 text-[45px] font-montserrat-alt">{item.title}</h2>
-                    <p className="text-gray-400 text-[30px] font-merienda text-justify">{item.titleDesc}</p>
-                    <p className="text-gray-600 text-[30px] font-gvibes">{item.titleQuote}</p>
 
-                </div>
-                
-                {
-                    (item.showUsers && members)?
-                        <div className="flex flex-col justify-center items-center mt-30">
-                            <h1 className="text-gray-200 text-[50px] font-montserrat">
-                                {item.baseUserModifier} <span className="text-blue-500">
-                                    {item.baseUser}{members.length===1?"":"s"} </span>
-                            </h1>
-                            <AllUsers users={members} baseName={item.baseUser} divId={divisionId} />
-                        </div>: <></>
-                }
-            <div className="h-20">
+                {/* Venue Section */}
+                {item.showVenue && (
+                    <section className="mb-24">
+                        <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+                            <Calendar className="w-8 h-8 text-emerald-400" />
+                            Upcoming Sessions
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {item.venue.map((v, indx) => (
+                                <OverlayDetails 
+                                    key={indx} 
+                                    showBtn={false} 
+                                    item={(e) => <InfoCard card={v} setIsOpen={e} />} 
+                                    size="w-full"
+                                    title={`${getDateDetails(v.date).dayName} ${v.place}`}
+                                    desc={
+                                        <div className="space-y-2">
+                                            <p className="text-gray-300">
+                                                {getDateDetails(v.date).day} {getDateDetails(v.date).monthName} {getDateDetails(v.date).year}
+                                            </p>
+                                            <p className="font-medium text-white">
+                                                {getFormattedTime(v.from)} - {getFormattedTime(v.to)}
+                                            </p>
+                                            <p className="text-sm text-emerald-400">{v.role}</p>
+                                        </div>
+                                    }
+                                    bgColor="bg-gray-800"
+                                    styles="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg"
+                                />
+                            ))}
+                        </div>
+                    </section>
+                )}
 
-            </div>
-            </div>
-        </header>
+                {/* Description Section */}
+                <section className="mb-24 flex justify-center">
+                    <div className="max-w-3xl text-center space-y-8">
+                        <h2 className="text-3xl font-bold text-white flex items-center justify-center gap-3">
+                            <Quote className="w-8 h-8 text-emerald-400" />
+                            {item.title}
+                        </h2>
+                        <div className="space-y-6">
+                            <p className="text-xl text-gray-300 leading-relaxed">
+                                {item.titleDesc}
+                            </p>
+                            {item.titleQuote && (
+                                <p className="text-2xl text-emerald-300 italic">
+                                    "{item.titleQuote}"
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Members Section */}
+                {item.showUsers && members && (
+                    <section className="mb-16">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                            <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                                <Users className="w-8 h-8 text-emerald-400" />
+                                {item.baseUserModifier} 
+                                <span className="text-emerald-400">
+                                    {item.baseUser}{members.length === 1 ? "" : "s"} 
+                                    <span className="text-gray-400 text-xl ml-2">
+                                        ({members.length} total)
+                                    </span>
+                                </span>
+                            </h2>
+                            
+                        </div>
+                        
+                        <AllUsers 
+                            users={paginatedMembers} 
+                            baseName={item.baseUser} 
+                            divId={divisionId} 
+                            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                        />
+
+                        
+                    </section>
+                )}
+            </main>
+        </div>
     );
 }

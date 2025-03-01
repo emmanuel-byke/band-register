@@ -3,49 +3,84 @@ import { AppContext } from '../AppProvider';
 import { capitalize, checkUserInDivision, divisions, getStat, getUser, sortAllDivisionsByUser } from "../assets";
 import SectionDivider from "./SectionDivider";
 import BandRegistrationCard from "./BandRegistrationCard";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 export default function BandRegistration() {
-    const{ userId, loggedIn } = useContext(AppContext);
-    if(loggedIn) {
-        const [showAll, setShowAll] = useState(false);
-        const user = getUser(userId);
-        const allDivisions = sortAllDivisionsByUser(user, divisions);
-        const cutOff = 4;
-        
+    const { userId, loggedIn } = useContext(AppContext);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
 
-        return (
-            <header className="flex flex-col flex-wrap justify-center items-center ">
-                <div className="mt-20" id="divisions">
-                    <SectionDivider value="Band Management" />
+    if(!loggedIn) return null;
+
+    const user = getUser(userId);
+    const allDivisions = sortAllDivisionsByUser(user, divisions);
+    const totalPages = Math.ceil(allDivisions.length / itemsPerPage);
+    const paginatedDivisions = allDivisions.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    return (
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div className="text-center mb-16" id="divisions">
+                <SectionDivider 
+                    value="Band Management"
+                    color="bg-blue-600"
+                    borderColor="border-blue-100"
+                />
+                <h1 className="text-4xl font-bold text-gray-900 mt-8 font-lora">
+                    Explore <span className="text-blue-600">Band Divisions</span>
+                </h1>
+                <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto font-montserrat">
+                    Discover and manage your musical collaborations across various band divisions
+                </p>
+            </div>
+
+            <div className="w-full">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    {paginatedDivisions.map((dv, index) => (
+                        <BandRegistrationCard 
+                            key={dv.id} 
+                            data={dv} 
+                            isJoin={!checkUserInDivision(user, dv.id)}
+                        />
+                    ))}
                 </div>
 
-                <div className="flex flex-row">
-                    <h1 className={`text-black text-[40px] font-roboto-slab mt-10`}>trending <span className="text-green-500">
-                        Band Divisions</span></h1>
-                </div>
+                {allDivisions.length > itemsPerPage && (
+                    <div className="mt-12 flex items-center justify-center space-x-2">
+                        <button
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-lg border border-gray-200 hover:border-blue-500 disabled:opacity-50 disabled:hover:border-gray-200"
+                        >
+                            <ChevronLeftIcon className="h-5 w-5 text-gray-700" />
+                        </button>
 
-                <div className="w-full flex flex-col">
-                    {
-                        allDivisions.length>cutOff?
-                            <h1 className="text-gray text-[30px] cursor-pointer font-montserrat-alt ml-9" 
-                                onClick={()=>setShowAll(!showAll)}>
-                                {showAll?"All": "Some"} Division{allDivisions.length===1?"":"s"}
-                            </h1> 
-                        : <></>
-                    }
-                    <div className="flex flex-row flex-wrap justify-between items-center mt-10 gap-6">
-                        {
-                            allDivisions.map((dv, indx)=>{
-                                if(indx<cutOff || showAll){
-                                    return <BandRegistrationCard key={indx} data={dv} isJoin={!checkUserInDivision(user, dv.id)} />;
-                                }
-                            })
-                        }
+                        {[...Array(totalPages)].map((_, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setCurrentPage(idx + 1)}
+                                className={`px-4 py-2 rounded-lg font-medium ${
+                                    currentPage === idx + 1
+                                        ? 'bg-blue-500 text-white'
+                                        : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                            >
+                                {idx + 1}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-lg border border-gray-200 hover:border-blue-500 disabled:opacity-50 disabled:hover:border-gray-200"
+                        >
+                            <ChevronRightIcon className="h-5 w-5 text-gray-700" />
+                        </button>
                     </div>
-                </div>
-                
-            </header>
-        );
-    }
-    return <></>
+                )}
+            </div>
+        </section>
+    );
 }

@@ -27,12 +27,12 @@ export const icons = {
 }
 
 
-const venue1 = {date: "2025-02-19", from: "02:00", to: "03:00", place: "at church", role: "for discussions", img: locationIco};
-const venue2 = {date: "2025-01-15", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
-const venue3 = {date: "2025-04-21", from: "03:15", to: "05:00", place: "at church", role: "for practice", img: locationIco};
-const venue4 = {date: "2025-02-28", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
-const venue5 = {date: "2025-03-15", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
-const venue6 = {date: "2025-04-15", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
+const venue1 = {id:0, date: "2025-02-19", from: "02:00", to: "03:00", place: "at church", role: "for discussions", img: locationIco};
+const venue2 = {id:1, date: "2025-01-15", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
+const venue3 = {id:2, date: "2025-04-21", from: "03:15", to: "05:00", place: "at church", role: "for practice", img: locationIco};
+const venue4 = {id:3, date: "2025-02-28", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
+const venue5 = {id:4, date: "2025-03-15", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
+const venue6 = {id:5, date: "2025-04-15", from: "02:00", to: "03:00", place: "at church", role: "for practice", img: locationIco};
 
 const attendance1 = [
     { date: '2025-02-23', startTime: "15:00", endTime: "17:00", place: "church", role: "practice", sessions: 2, attendance: 2 },
@@ -167,19 +167,19 @@ function division(
 }
 
 const div1 = division(
-    1, "drum", drums, [4, 4.8, 4.2], "Lets beat something", [venue1, venue2], attendance1, songsLearned, performance, absent1
+    0, "drum", drums, [4, 4.8, 4.2], "Lets beat something", [venue1, venue2], attendance1, songsLearned, performance, absent1
 )
 const div2 = division(
-    2, "Keyboard", keyboard, [4, 3.5, 4.2], "Hands on Lesson", [venue3, venue4, venue5], attendance2, songsLearned, performance, absent2
+    1, "Keyboard", keyboard, [4, 3.5, 4.2], "Hands on Lesson", [venue3, venue4, venue5], attendance2, songsLearned, performance, absent2
 )
 const div3 = division(
-    3, "Trumpet", trumpet, [4, 3.5, 4.2], "For Professionals", [venue2, venue3, venue6], attendance3, songsLearned, performance, absent3
+    2, "Trumpet", trumpet, [4, 3.5, 4.2], "For Professionals", [venue2, venue3, venue6], attendance3, songsLearned, performance, absent3
 )
 const div4 = division(
-    4, "Guitar", guitar, [4, 3.5, 4.2], "Pluck those strings", [venue1, venue3, venue6], attendance3, songsLearned, performance, absent4
+    3, "Guitar", guitar, [4, 3.5, 4.2], "Pluck those strings", [venue1, venue3, venue6], attendance3, songsLearned, performance, absent4
 )
 const div5 = division(
-    5, "Sing", microphone, [4, 3.5, 4.2], "Your Voice", [venue1, venue2, venue3], attendance2, songsLearned, performance, 
+    4, "Sing", microphone, [4, 3.5, 4.2], "Your Voice", [venue1, venue2, venue3], attendance2, songsLearned, performance, 
     absent2
 )
 
@@ -216,19 +216,20 @@ function user(
     )
 }
 
-const user_0 = user(1, "Emmanuel", "Basikolo", "byke", user0, [div1, div2, div3, div4, div5], feedback1);
-const user_1 = user(2, "John", "Phiri", "johny", user1, [div2, div3], feedback2);
-const user_2 = user(3, "Blessings", "Roberts",  "bule", user2, [div3, div2, div4], feedback3);
-const user_3 = user(4, "James", "Banda", "muje", user3, [div2, div3], feedback1);
-const user_4 = user(5, "Macdonald", "Phiri", "mac", user4, [div2, div4, div5], feedback2);
-const user_5 = user(6, "Joseph", "Chimtengo", "jay", user5, [div4, div5, div2], feedback3);
-const user_6 = user(7, "Gift", "Kalulu", "gibo", user6, [div1, div4, div2], feedback1); 
+const user_0 = user(0, "Emmanuel", "Basikolo", "byke", user0, [div1, div2, div3, div4, div5], feedback1);
+const user_1 = user(1, "John", "Phiri", "johny", user1, [div2, div3], feedback2);
+const user_2 = user(2, "Blessings", "Roberts",  "bule", user2, [div3, div2, div4], feedback3);
+const user_3 = user(3, "James", "Banda", "muje", user3, [div2, div3], feedback1);
+const user_4 = user(4, "Macdonald", "Phiri", "mac", user4, [div2, div4, div5], feedback2);
+const user_5 = user(5, "Joseph", "Chimtengo", "jay", user5, [div4, div5, div2], feedback3);
+const user_6 = user(6, "Gift", "Kalulu", "gibo", user6, [div1, div4, div2], feedback1); 
 
 export const users = [ user_0, user_1, user_2, user_3, user_4, user_5, user_6 ]
 
 
 export const pendingActivities = [
     {
+        id: 0,
         title: "City Center Church Crusade", 
         desc: `Join us for an inspiring and transformative experience at the City Center Church Crusade! This event is designed to bring 
             together people from all walks of life to celebrate faith, hope, and community. Our dynamic speakers and passionate worship 
@@ -241,6 +242,7 @@ export const pendingActivities = [
         time: "02:00",
     },
     {
+        id: 1,
         title: "Sunday Service", 
         desc: `We warmly invite you to join us for our Sunday Service at Zomba Assemblies of God. Our service is designed to bring you closer 
             to God and to help you find strength, hope, and inspiration for the week ahead. Whether you're a regular attendee or a 
@@ -253,6 +255,7 @@ export const pendingActivities = [
         time: "02:00",
     },
     {
+        id: 2,
         title: "Mountain Service", 
         desc: `Join us for a unique and awe-inspiring mountain preaching event at Zomba Mountain. Surrounded by the beauty and serenity 
             of nature, this special gathering offers a perfect setting for worship, reflection, and spiritual growth. Experience the 
@@ -265,6 +268,17 @@ export const pendingActivities = [
         time: "02:00",
     },
 ]
+
+export const pendingRequest = [
+    {userId: 0, venueId: 0, divId: 1, attended: true, reason:''},
+    {userId: 0, venueId: 1, divId: 2, attended: true, reason:''},
+    {userId: 0, venueId: 2, divId: 0, attended: true, reason:''},
+    {userId: 1, venueId: 0, divId: 1, attended: false, reason:'study/work'},
+    {userId: 1, venueId: 0, divId: 2, attended: true, reason:''},
+    {userId: 1, venueId: 0, divId: 0, attended: false, reason:'family'},
+]
+
+export const allVenues = [ venue1, venue2, venue3, venue4, venue5, venue6 ]
 
 export function capitalize(str) {
     return str
@@ -284,9 +298,23 @@ export function getUserHeader() {
     return users.map(u=>({id: u.id, username:u.details.username, name:`${u.details.firstname} ${u.details.lastname}`}))
 }
 
+export function getDiv(divId) {
+    return divisions.find(div=>div.id===divId)
+}
+
+export function getVenue(venueId) {
+    return allVenues.find(venue=>venue.id===venueId)
+}
+
 export function getUsersByDivision(divId) {
     return users.filter(user =>user.divisions.some(division => division.id === divId)) || null;
 }
+
+export function countUsersInDiv(divId) {
+    const users = getUsersByDivision(divId);
+    return users? users.length : 0;
+}
+
 
 //statistics
 export function getMean(array) {
@@ -505,6 +533,9 @@ export function getDivisionToRegister(user, cutOff=null) {
     return result;
 }
 
+export function addS(num) {
+    return num===1? "": "s"
+}
 function addZero(num) {
     return num < 10 ? `0${num}` : num;
 }
@@ -578,24 +609,81 @@ export function getAllDivisions() {
 
 
 export function getStructuredDivData() {
-    // const result = [];
-    // const nameIndexMap = new Map();
-    // for(let i=0; i<users.length; i++) {
-    //     for(let j=0; j<users[i].divisions.length; j++){
-    //         const input = absentCal(users[i].divisions[j].absent, startDate, endDate).byName;
-    //         for(let k=0; k<input.length; k++) {
-    //             const { name, value } = input[k];
-    //             if (nameIndexMap.has(name)) {
-    //                 const index = nameIndexMap.get(name);
-    //                 result[index].value += value;
-    //             } else {
-    //                 result.push({ name, value });
-    //                 nameIndexMap.set(name, result.length - 1);
-    //             }
-    //         }
-    //     }
-    // }
+    const dates = getPastThreeMonthsDates();
+    const result = [];
     
-    // return result.sort((a,b)=>b.value-a.value)[0];
-    console.log(divisions);
+    for (let j = 0; j < dates.length; j++) {
+        const div = []; 
+        for (let i = 0; i < divisions.length; i++) {
+            const att = dateFilter(
+                divisions[i].attendance,
+                dates[j].startDate,
+                dates[j].endDate 
+            );
+            const v = att.reduce((a, b) => a + b.attendance, 0);
+            div.push({
+                name: capitalize(divisions[i].name),
+                value: v
+            });
+        }
+        result.push({
+            month: getDateDetails(dates[j].startDate).monthName,
+            div: div
+        });
+    }
+    return result;
 }
+
+export function getTop5Users() {
+    const dates = getPastThreeMonthsDates();
+    const result = [];
+    
+    for(let k=0; k<users.length; k++) {
+        let total = 0; 
+        for (let j = 0; j < dates.length; j++) {
+            for (let i = 0; i < users[k].divisions.length; i++) {
+                const att = dateFilter(
+                    users[k].divisions[i].attendance,
+                    dates[j].startDate,
+                    dates[j].endDate 
+                );
+                total += att.reduce((a, b) => a + b.attendance, 0);
+            }
+        }
+        result.push({
+            userId: users[k].id, 
+            name: `${capitalize(users[k].details.firstname)[0]}. ${capitalize(users[k].details.lastname)}`,
+            total: total
+        });
+    }
+    return result.sort((a,b)=>b.total-a.total).slice(0, 5);
+}
+
+function getPastThreeMonthsDates() {
+    const result = [];
+    const today = new Date();
+    
+    // Loop for current month and the 2 preceding months
+    for (let i = 0; i < 3; i++) {
+      // Create a date for the first day of the target month
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const year = firstDayOfMonth.getFullYear();
+      const month = firstDayOfMonth.getMonth(); // Note: Months are 0-indexed (0 = January)
+      
+      // Format month number to two digits
+      const formattedMonth = String(month + 1).padStart(2, '0');
+      
+      // First day is always the 1st of the month
+      const startDate = `${year}-${formattedMonth}-01`;
+      
+      // To get the last day, set day to 0 of the next month
+      const lastDayOfMonth = new Date(year, month + 1, 0);
+      const formattedDay = String(lastDayOfMonth.getDate()).padStart(2, '0');
+      const endDate = `${year}-${formattedMonth}-${formattedDay}`;
+      
+      result.push({ startDate, endDate });
+    }
+    
+    return result.reverse();
+  }
+  
