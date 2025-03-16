@@ -1,17 +1,19 @@
 import { useContext, useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
 import { AppContext } from '../AppProvider';
-import { getUser, getUserHeader, icons } from "../assets/index";
-import { navHeaders } from "../assets/constants";
+import { useNavigate, NavLink } from "react-router-dom";
+
 import DropDown from "./DropDown";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CogIcon, LogOut, UserIcon } from "lucide-react";
-import { ArrowRightOnRectangleIcon } from "@heroicons/react/20/solid";
+import { logout } from "../Services/auth";
+import useAuth from "../Services/useAuth";
 
-export default function Navbar(props) {
-    const { setLoggedIn, loggedIn, userId, setUserId, user, setUser } = useContext(AppContext);
+export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontColor }) {
+    const { setLoggedIn, loggedIn, setUserId, setUser, user } = useContext(AppContext);
+    
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
+    const { refreshUser } = useAuth();
 
     const handleNavigation = (path) => {
         navigate(path);
@@ -20,15 +22,15 @@ export default function Navbar(props) {
     const [activeRef, setActiveRef] = useState('Home')
 
     return(
-        <header className="w-full bg-white border-b border-gray-100 shadow-sm">
+        <header className={`w-full ${bgColor||'bg-white border-gray-100'} border-b  shadow-sm`}>
             <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20">
                     {/* Logo */}
                     <NavLink to="/" className="flex-shrink-0 hover:opacity-80 transition-opacity">
                         <img 
-                            src={icons.mainIcon.value}
-                            className="w-14 h-14"
-                            alt={icons.mainIcon.name}
+                            src={mainIcon.value}
+                            className="w-14 h-14 object-contain"
+                            alt={mainIcon.name}
                         />
                     </NavLink>
 
@@ -41,8 +43,8 @@ export default function Navbar(props) {
                                         <a
                                             href={header.href}
                                             className={ 
-                                                `px-3 py-2 text-gray-700 font-medium transition-colors
-                                                ${activeRef===header.name ? 'text-blue-600 border-b-2 border-blue-500' : 'hover:text-blue-500'}`
+                                                `px-3 py-2 ${fontColor||'text-gray-700 hover:text-blue-500'} font-medium transition-colors
+                                                ${activeRef===header.name && 'border-b-3 border-blue-500'}`
                                             }
                                             onClick={()=>setActiveRef(header.name)}
                                         >
@@ -58,7 +60,8 @@ export default function Navbar(props) {
                     <div className="md:hidden flex items-center">
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-blue-500 focus:outline-none"
+                            className={`inline-flex items-center justify-center p-2 rounded-md ${fontColor||
+                                'text-gray-600 hover:text-blue-500'} focus:outline-none`}
                         >
                             {isMobileMenuOpen ? (
                                 <XMarkIcon className="h-6 w-6" />
@@ -72,16 +75,19 @@ export default function Navbar(props) {
                     <div className="hidden md:flex items-center gap-6">
                         {loggedIn ? (
                             <div className="relative group">
+
                                 <DropDown
                                     component={
                                         <div className="flex items-center space-x-2 cursor-pointer">
                                             <img 
-                                                src={icons.userIcon.value}
-                                                alt={icons.userIcon.name}
-                                                className="w-10 h-10 rounded-full border-2 border-gray-200 hover:border-blue-400 transition-colors"
+                                                src={userIcon.value}
+                                                alt={userIcon.name}
+                                                className="w-10 h-10 rounded-full border-2 border-gray-200 hover:border-blue-400 
+                                                    transition-colors"
                                             />
                                         </div>
                                     }
+                                    font='font-poppins'
                                     menuItems={[
                                         { 
                                             label: "Profile", 
@@ -104,36 +110,28 @@ export default function Navbar(props) {
                                         {
                                             label: "Log Out",
                                             onClick: () => {
-                                                setLoggedIn(false);
-                                                setUserId(null);
-                                                setUser(null);
+                                                logout();
+                                                refreshUser();
                                             },
                                             icon: <LogOut className="h-5 w-5 mr-2 text-red-500" />,
                                             styles: "text-red-600 hover:bg-red-50"
                                         },
-                                    ]}
+                                    ].filter(item=>item.label==='Admin'?user.is_admin:true)}
                                 />
                             </div>
                         ) : (
                             <div className="flex items-center gap-5">
-                                <DropDown
-                                    component={
-                                        <span className="text-gray-600 hover:text-blue-500 font-medium cursor-pointer transition-colors">
-                                            Log In
-                                        </span>
-                                    }
-                                    menuItems={getUserHeader().map(u => ({
-                                        label: `${u.username} (${u.name})`, 
-                                        onClick: () => {
-                                            setLoggedIn(true);
-                                            setUserId(u.id);
-                                            setUser(getUser(u.id));
-                                        },
-                                        styles: "hover:bg-gray-50 text-gray-700"
-                                    }))}
-                                />
                                 <NavLink
                                     to="/auth"
+                                    state={{isLogin:true}}
+                                    className="text-gray-600 hover:text-blue-500 font-medium cursor-pointer transition-colors"
+                                >
+                                    Log In
+                                </NavLink>
+                                
+                                <NavLink
+                                    to="/auth"
+                                    state={{isLogin:false}}
                                     className="px-4 py-2 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-50 font-medium transition-colors"
                                 >
                                     Sign Up

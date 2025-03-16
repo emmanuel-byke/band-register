@@ -1,9 +1,11 @@
-import { getDateDetails, getFormattedTime } from "../assets";
+import { Image } from "lucide-react";
+import { getDateDetails, getFormattedTime, subtractDates } from "../assets";
 
 export default function InfoCard(props) {
     const date = getDateDetails(props.card.date);
-    const fromTime = getFormattedTime(props.card.from);
-    const endTime = getFormattedTime(props.card.to);
+    const fromTime = getFormattedTime(props.card.startTime);
+    const endTime = getFormattedTime(props.card.endTime);
+    const dateSub = subtractDates(props.card.date)
 
     return (
         <div 
@@ -11,14 +13,19 @@ export default function InfoCard(props) {
                 border-gray-100 overflow-hidden"
             onClick={() => props.setIsOpen(prev => !prev)}
         >
-            <div className="flex h-full">
+            <div className="flex h-full items-center justify-center">
                 {/* Image Section */}
                 <div className="relative w-32 flex-shrink-0">
-                    <img 
-                        src={props.card.img} 
-                        alt={props.card.place} 
-                        className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                    />
+                    {
+                        props.card.img
+                        ?   <img 
+                                src={props.card.img} 
+                                alt={props.card.place} 
+                                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                            />
+                        : props.altImage? props.altImage
+                        : <Image className="h-32 w-32 text-[#36439B]" />
+                    }
                     <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
                 </div>
 
@@ -26,11 +33,12 @@ export default function InfoCard(props) {
                 <div className="flex flex-col justify-center p-5 flex-grow">
                     {/* Date & Status */}
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-blue-600">
-                            {date.dayName}
-                        </span>
+
+                        <h1 className="text-sm font-medium font-montserrat text-blue-600">
+                            {props.divName} {props.divRole && <span>{`${props.divRole} on `}</span>}  {date.dayName}
+                        </h1>
                         <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-                            Upcoming
+                            {dateSub}
                         </span>
                     </div>
 
@@ -65,7 +73,7 @@ export default function InfoCard(props) {
                             📍 {date.day} {date.monthName}
                         </span>
                         <span className="flex items-center">
-                            👤 12 Participants
+                            👤 Many Participants
                         </span>
                     </div>
                 </div>

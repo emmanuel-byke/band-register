@@ -1,36 +1,75 @@
-import { useContext, useState } from "react";
+import { MapPinned } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from '../AppProvider';
-import { getDateDetails, getDivisionToRegister, getFormattedTime, getUser, selectVenueByDate } from "../assets";
-import SectionDivider from "./SectionDivider";
+import { getDateDetails, getFormattedTime } from "../assets";
+import api from "../Services/api";
 import InfoCard from "./InfoCard";
-import VenueRegister from "./VenueRegister";
+import NoRecordsCard from "./NoRecord";
 import OverlayDetails from "./OverlayDetails";
 import Pagination from "./Pagination";
-
+import SectionDivider from "./SectionDivider";
+import VenueRegister from "./VenueRegister";
 
 export default function PendingSchedules() {
-    const { userId, loggedIn } = useContext(AppContext);
+    const { user, userChanged, loggedIn } = useContext(AppContext);
+    const [ scheduleChanged, setScheduleChanged ] = useState(false);
+    const [ pendingSchedule, setPendingSchedule ] = useState([]);
+    const [ unregisteredSchedule, setUnregisteredSchedule ] = useState([]);
     const [unregisteredPage, setUnregisteredPage] = useState(1);
     const [pendingPage, setPendingPage] = useState(1);
+    const [details, setDetails] = useState({
+        pending: 0,
+        rejected: 0,
+        approved: 0,
+    });
     const itemsPerPageUnreg = 3;
     const itemsPerPagePending = 4;
 
-    if(!loggedIn) return null;
+    useEffect(()=>{
+        const fetchPendingSchedules = async() => {
+            try{
+                const params = { params: { search: '', users:user.id } }
+                const response = await api.getAllUpcommingDivVenues(params);
+                setPendingSchedule(response.data);
+            } catch(error) {
+                console.error(error?.response?.data);
+            }
+        }
+        loggedIn && fetchPendingSchedules();
+    }, [userChanged, scheduleChanged]);
 
-    const user = getUser(userId);
-    const pendingDiv = selectVenueByDate(user.divisions, null);
-    const unregisteredDiv = getDivisionToRegister(user, null);
-
-    const paginatedUnregistered = unregisteredDiv.slice(
+    useEffect(()=>{
+        const fetchUnregisteredSchedules = async() => {
+            try{
+                const response = await api.getSchedules(user.id);
+                setUnregisteredSchedule([...response.data.new, ...response.data.rejected])
+                setDetails({
+                    pending: response.data.pending.length,
+                    approved: response.data.accepted.length,
+                    rejected: response.data.rejected.length,
+                })
+            } catch(error) {
+                console.error(error?.response?.data);
+            }
+        }
+        loggedIn && fetchUnregisteredSchedules();
+    }, [userChanged, scheduleChanged]);
+    
+    
+    const pendingDiv = [];
+    const unregisteredDiv = [];
+    
+    const paginatedUnregistered = unregisteredSchedule.slice(
         (unregisteredPage - 1) * itemsPerPageUnreg,
         unregisteredPage * itemsPerPageUnreg
     );
-
-    const paginatedPending = pendingDiv.slice(
+    
+    const paginatedPending = pendingSchedule.slice(
         (pendingPage - 1) * itemsPerPagePending,
         pendingPage * itemsPerPagePending
     );
-
+    
+    if(!loggedIn) return null;
     return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
            
@@ -50,16 +89,25 @@ export default function PendingSchedules() {
 
             
             <div className="mb-20">
-                <div className="flex flex-col items-center mb-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                        {paginatedUnregistered.map((v, index) => (
-                            <VenueRegister 
-                                key={`${v.divName}-${index}`} 
-                                data={v.availableVenue[0]} 
-                                name={v.divName} 
-                                img={v.img} 
-                            />
-                        ))}
+                <div className={`flex flex-col items-center mb-8`}>
+                    <div className={`${paginatedUnregistered.length<= 0? 'flex justify-center':'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'} gap-6 w-full`}>
+                        {
+                            paginatedUnregistered.length> 0 ? paginatedUnregistered.map((venue, index) => (
+                                venue.divisions.map(id=>(
+                                    <VenueRegister 
+                                        key={`${id}-${index}` }
+                                        venue={venue}
+                                        divId={id}
+                                        username={user.username}
+                                        setScheduleChanged={setScheduleChanged}
+                                    />
+                                ))
+                                )) : <NoRecordsCard 
+                                        check={true} 
+                                        text={'No Records Found'} 
+                                        desc='no un registered venues found right now' 
+                                        suggest={{text:'Join More Divisions', href: '#divisions'}} />
+                        }
                     </div>
                     {unregisteredDiv.length > itemsPerPageUnreg &&  <div className="mt-8">
                         <Pagination
@@ -73,9 +121,9 @@ export default function PendingSchedules() {
                 
                 <div className="text-center mt-8">
                     <p className="text-lg text-gray-600 font-medium">
-                        Approved: <span className="text-green-600">5</span> • 
-                        Pending: <span className="text-amber-600">3</span> • 
-                        Rejected: <span className="text-red-600">1</span>
+                        Approved: <span className="text-green-600">{details.approved}</span> • 
+                        Pending: <span className="text-amber-600">{details.pending}</span> • 
+                        Rejected: <span className="text-red-600">{details.rejected}</span>
                     </p>
                 </div>
             </div>
@@ -91,7 +139,14 @@ export default function PendingSchedules() {
                         <OverlayDetails 
                             key={index} 
                             showBtn={false} 
-                            item={(e) => <InfoCard card={v} setIsOpen={e} />}
+                            item={(e) => 
+                                <InfoCard 
+                                    card={v} 
+                                    setIsOpen={e} 
+                                    altImage={<MapPinned className="h-32 w-32 text-[#36439B]" />} 
+                                    
+                                />
+                            }
                             size="w-full"
                             title={`${getDateDetails(v.date).dayName} @ ${v.place}`}
                             desc={
@@ -100,13 +155,13 @@ export default function PendingSchedules() {
                                         {getDateDetails(v.date).date2} 
                                     </p>
                                     <p className="font-medium">
-                                        {getFormattedTime(v.from)} - {getFormattedTime(v.to)}
+                                        {getFormattedTime(v.startTime)} - {getFormattedTime(v.endTime)}
                                     </p>
                                     <p className="text-sm text-gray-500">{v.role}</p>
                                 </div>
                             }
                             onClick={() => console.log("Confirmed")}
-                            bgColor="bg-gradient-to-br from-blue-50 to-white"
+                            bgColor="bg-gradient-to-br from-gray-500 to-slate-500"
                             styles="px-6 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition-colors"
                         />
                     ))}

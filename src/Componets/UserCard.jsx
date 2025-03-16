@@ -1,16 +1,21 @@
+import { PictureInPicture, User } from "lucide-react";
 
 export default function UserCard(props) {
-    const name = `${props.user.details.firstname} ${props.user.details.lastname}`;
+    const name = `${props.user.fname} ${props.user.lname}`;
     
     return(
         <article className="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer bg-gray-800">
     {/* Image Container with Gradient Overlay */}
     <div className="relative aspect-square">
-        <img 
-            src={props.user.details.picture}
-            alt={name}
-            className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105"
-        />
+        {
+            props.user.profile_picture ?
+                <img 
+                    src={props.user.profile_picture}
+                    alt={name}
+                    className="w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105"
+                /> :
+                <User className="w-full h-full object-cover text-emerald-600 transform transition-transform duration-300 group-hover:scale-105" />
+        }
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" />
     </div>
 

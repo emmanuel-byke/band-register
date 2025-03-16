@@ -227,48 +227,6 @@ const user_6 = user(6, "Gift", "Kalulu", "gibo", user6, [div1, div4, div2], feed
 export const users = [ user_0, user_1, user_2, user_3, user_4, user_5, user_6 ]
 
 
-export const pendingActivities = [
-    {
-        id: 0,
-        title: "City Center Church Crusade", 
-        desc: `Join us for an inspiring and transformative experience at the City Center Church Crusade! This event is designed to bring 
-            together people from all walks of life to celebrate faith, hope, and community. Our dynamic speakers and passionate worship 
-            leaders will guide you through a journey of spiritual renewal and growth.`, 
-        venue: venue5, 
-        showPoster: true, 
-        poster: crusadeServicePoster,
-        picture: user0,
-        date: "2025-02-19",
-        time: "02:00",
-    },
-    {
-        id: 1,
-        title: "Sunday Service", 
-        desc: `We warmly invite you to join us for our Sunday Service at Zomba Assemblies of God. Our service is designed to bring you closer 
-            to God and to help you find strength, hope, and inspiration for the week ahead. Whether you're a regular attendee or a 
-            first-time visitor, you'll feel right at home in our welcoming community.`, 
-        venue: venue4, 
-        showPoster: true, 
-        poster: sundayServicePoster, 
-        picture: user1,
-        date: "2025-02-19",
-        time: "02:00",
-    },
-    {
-        id: 2,
-        title: "Mountain Service", 
-        desc: `Join us for a unique and awe-inspiring mountain preaching event at Zomba Mountain. Surrounded by the beauty and serenity 
-            of nature, this special gathering offers a perfect setting for worship, reflection, and spiritual growth. Experience the 
-            power of God's creation as we come together to praise and seek His presence.`, 
-        venue: venue6, 
-        showPoster: true, 
-        poster: mountainServicePoster, 
-        picture: user4,
-        date: "2025-02-19",
-        time: "02:00",
-    },
-]
-
 export const pendingRequest = [
     {userId: 0, venueId: 0, divId: 1, attended: true, reason:''},
     {userId: 0, venueId: 1, divId: 2, attended: true, reason:''},
@@ -290,9 +248,9 @@ export function capitalize(str) {
 export function getAllUsers() {
     return users;
 }
-export function getUser(id) {
-    return users.find(u=>u.id===id);
-}
+// export function getUser(id) {
+//     return users.find(u=>u.id===id);
+// }
 
 export function getUserHeader() {
     return users.map(u=>({id: u.id, username:u.details.username, name:`${u.details.firstname} ${u.details.lastname}`}))
@@ -330,14 +288,12 @@ function dateFilter(array, startDate, endDate) {
     });
 }
 
-function absentCal(absArray, startDate, endDate) {
-    const filteredArray = dateFilter(absArray, startDate, endDate);
-
-    const absByNameResult = {};
-    filteredArray.forEach(item => { absByNameResult[item.name] = (absByNameResult[item.name] || 0) + 1; });
+export function absentCal(absArray, date_range) {
+    const absByReasonResult = {};
+    absArray.forEach(item => { absByReasonResult[item.reason] = (absByReasonResult[item.reason] || 0) + 1; });
     
     const absByDateResult = {};
-    addDateDesc(filteredArray).forEach(item => {
+    addDateDesc(absArray, date_range).forEach(item => {
         if (!absByDateResult[item.dateDesc]) {
             absByDateResult[item.dateDesc] = { ...item, value: 0 };
         }
@@ -345,7 +301,7 @@ function absentCal(absArray, startDate, endDate) {
     });
 
     return {
-        byName: Object.keys(absByNameResult).map(name => ({ name: name, value: absByNameResult[name] })),
+        byReason: Object.keys(absByReasonResult).map(reason => ({ reason: reason, value: absByReasonResult[reason] })),
         byDate: Object.values(absByDateResult)
     };
 }
@@ -385,20 +341,20 @@ export function getAvgAttendance(users) {
     return totalSessions===0? 0 : (100*totalAttendance)/totalSessions;
 }
 
-export function getTopAbsenceReason(users, startDate=null, endDate=null) {
+export function getTopAbsenceReason(users, date_range) {
     const result = [];
-    const nameIndexMap = new Map();
+    const reasonIndexMap = new Map();
     for(let i=0; i<users.length; i++) {
         for(let j=0; j<users[i].divisions.length; j++){
-            const input = absentCal(users[i].divisions[j].absent, startDate, endDate).byName;
+            const input = absentCal(users[i].divisions[j].absent, date_range).byReason;
             for(let k=0; k<input.length; k++) {
-                const { name, value } = input[k];
-                if (nameIndexMap.has(name)) {
-                    const index = nameIndexMap.get(name);
+                const { reason, value } = input[k];
+                if (reasonIndexMap.has(reason)) {
+                    const index = reasonIndexMap.get(reason);
                     result[index].value += value;
                 } else {
-                    result.push({ name, value });
-                    nameIndexMap.set(name, result.length - 1);
+                    result.push({ reason, value });
+                    reasonIndexMap.set(reason, result.length - 1);
                 }
             }
         }
@@ -415,20 +371,20 @@ function sortByDate(array) {
         return dateA - dateB;
     }); 
 }
-export function addDateDesc(array) {
+export function addDateDesc(array, date_range) {
     if(!array || array.length<=0) return array;
+    const startDate = date_range.start;
+    const endDate = date_range.end;
+    const diff = (new Date(endDate) - new Date(startDate))/(1000 * 60 * 60 * 24);
 
-    const sortedArray = sortByDate(array);
-    const diff = (new Date(sortedArray[sortedArray.length-1].date) - new Date(sortedArray[0].date))/(1000 * 60 * 60 * 24);
-
-    if(diff<=7) return sortedArray.map(a=>({...a, dateDesc: getDateDetails(a.date).dayName}));
+    if(diff<=7) return array.map(a=>({...a, dateDesc: getDateDetails(a.venue_detail.date).dayName}));
     else if(diff<=31) {
-        const weekStart = getWeekNumber(new Date(sortedArray[0].date));
-        return sortedArray.map(a=>({...a, dateDesc: `Week ${getWeekNumber(new Date(a.date)) - weekStart + 1}`}));
+        const weekStart = getWeekNumber(new Date(startDate));
+        return array.map(a=>({...a, dateDesc: `Week ${getWeekNumber(new Date(a.venue_detail.date)) - weekStart + 1}`}));
     } else if(diff<=366) {
-        return sortedArray.map(a=>({...a, dateDesc: getDateDetails(a.date).monthName}));
+        return array.map(a=>({...a, dateDesc: getDateDetails(a.venue_detail.date).monthName}));
     }
-    return sortedArray.map(a=>({...a, dateDesc: getDateDetails(a.date).year}));
+    return array.map(a=>({...a, dateDesc: getDateDetails(a.venue_detail.date).year}));
 }
 
 export function combineByDateDesc(array) {
@@ -445,10 +401,10 @@ export function combineByDateDesc(array) {
     return Object.values(result); //we created a group, remove it and return the result
 }
 
-export function getDateRange(array) {
-    if(!array || Object.keys(array).length <= 0) return "No Data available";
-    const sortedArray = sortByDate(array);
-    return `${getDateDetails(sortedArray[0].date).date} to ${getDateDetails(sortedArray[sortedArray.length-1].date).date}`
+export function getDateRange(date_range) {
+    if(!date_range || Object.keys(date_range).length <= 0) return "No Data available";
+
+    return `${getDateDetails(date_range.start).date} to ${getDateDetails(date_range.end).date}`
 }
 
 
@@ -477,26 +433,8 @@ export function selectVenueByDate(array, cutOff=3) {
     return cutOff? upcomingEvents.slice(0, cutOff): upcomingEvents;
 }
 
-export function selectActivityByDate(array, cutOff=null) {
-
-
-    const now = new Date();
-
-    const upcomingEvents = array
-        .filter(event => {
-            const eventDateTime = new Date(`${event.venue.date}T${event.venue.from}`);
-            return eventDateTime > now;
-        })
-        .sort((a, b) => {
-            const dateA = new Date(`${a.venue.date}T${a.venue.from}`);
-            const dateB = new Date(`${b.venue.date}T${b.venue.from}`);
-            return dateA - dateB;
-        }); 
-    return cutOff===null? upcomingEvents.slice(0, cutOff): upcomingEvents;
-}
-
 export function checkUserInDivision(user, divId) {
-    return !!user.divisions.find(division => division.id === divId);
+    return user.divisions.find(division => division === divId) !== undefined;
 }
 
 export function sortAllDivisionsByUser(user, div) {
@@ -598,6 +536,24 @@ export function getFormattedTime(timeString) {
     
     return `${hours}:${minutes < 10 ? '0' + minutes : minutes} ${period}`;
 }
+
+export function subtractDates(parameterDate) {
+    const msPerDay = 86400000;
+    const diff = Math.floor((new Date(parameterDate) - Date.now()) / msPerDay);
+    const absDiff = Math.abs(diff);
+    const future = diff > 0;
+    const pluralize = (unit, value) => `${value} ${unit}${value > 1 ? 's' : ''} ${future ? 'from now' : 'ago'}`;
+  
+    if (diff === 0) return 'Today';
+    if (absDiff === 1) return future ? 'Tomorrow' : 'Yesterday';
+    if (absDiff < 7) return future ? `In ${absDiff} days` : `${absDiff} days ago`;
+    if (absDiff < 28) return future ? `In ${Math.floor(absDiff / 7)} weeks` : `${Math.floor(absDiff / 7)} weeks ago`;
+    if (absDiff < 60) return future ? 'In about a month' : 'About a month ago';
+    if (absDiff < 365) return pluralize('month', Math.floor(absDiff / 30));
+    return pluralize('year', Math.floor(absDiff / 365));
+}
+  
+  
 
 export const getAllDiv = (user) => user.divisions
     .map(div=>({id: div.id, name: div.name, isReg: div.isRegistered}))

@@ -1,9 +1,8 @@
-import { useContext } from "react";
+import { Calendar, Clock, Music, User } from 'lucide-react';
+import React, { useContext } from 'react';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { AppContext } from '../AppProvider';
 import { capitalize, getStat, getUser } from "../assets";
-import React, { useState } from 'react';
-import { Calendar, User, Clock, Music } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import SectionDivider from "./SectionDivider";
 
 export default function StatisticalSummary() {

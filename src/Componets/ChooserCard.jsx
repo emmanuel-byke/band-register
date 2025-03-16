@@ -1,32 +1,49 @@
+import { useEffect, useState } from "react";
+import api from "../Services/api";
 
-export default function ChooserCard(props) {
-    const handleClick = (e, item) => {
+export default function ChooserCard({currentImg, setCurrentImg, divId}) {
+    const [division, setDivision] = useState([]);
+
+    useEffect(()=>{
+        const getDiv = async(divId) => {
+            try {
+                const response = await api.getDivision(divId);
+                setDivision(response.data);
+            } catch (error) {
+               console.error(error?.response?.data);
+            }
+        }
+        getDiv(divId);
+    }, []);
+
+    const handleClick = (e, division) => {
         e.preventDefault();
-        if(!props.currentImg || props.currentImg.value!==props.item.value) {
-            props.setCurrentImg(item);
+        if(!currentImg || currentImg.value!==division.value) {
+            setCurrentImg(division);
         }
     }
+
     return(
         <div
         className={`relative flex items-center justify-center cursor-pointer
             w-14 h-14 p-1.5 rounded-lg border-2
             ${
-                props.currentImg?.value === props.item.value
+                currentImg?.value === division.value
                     ? "border-blue-500 bg-blue-50" 
                     : "border-gray-200 bg-white hover:border-gray-300"
             }`
         }
-        onClick={(e) => handleClick(e, props.item)}
+        onClick={(e) => handleClick(e, division)}
     >
         <div className="relative w-full h-full flex items-center justify-center">
             <img
-                src={props.item.value}
-                alt={props.item.name}
+                src={division.value}
+                alt={division.name}
                 className="w-full h-full object-contain rounded-sm"
             />
             
             {/* Selected Indicator */}
-            {props.currentImg?.value === props.item.value && (
+            {currentImg?.value === division.value && (
                 <div className="absolute -top-2 -right-2">
                     <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
                         <svg 

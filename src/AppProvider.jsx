@@ -17,7 +17,12 @@ export const AppProvider = ({children}) => {
         return savedValue !== null ? JSON.parse(savedValue) : null;
     });
 
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(()=>{
+        const savedValue = localStorage.getItem('logged-in-data-id-123-321-123-variable-temp-u-113');
+        return savedValue !== null ? JSON.parse(savedValue) : {};
+    });
+
+    const [userChanged, setUserChanged] = useState(false);
 
     useEffect(() => {
         localStorage.setItem('instruments-data-123-321-123-variable-bykes', JSON.stringify(currentInstr));
@@ -36,7 +41,13 @@ export const AppProvider = ({children}) => {
         localStorage.setItem('logged-in-data-id-123-321-123-variable-bykes', JSON.stringify(userId));
     }, [userId]);
 
-    return <AppContext.Provider value={{currentInstr, setCurrentInstr, loggedIn, setLoggedIn, userId, setUserId, user, setUser}}>
+    useEffect(() => {
+        localStorage.setItem('logged-in-data-id-123-321-123-variable-temp-u-113', JSON.stringify(user));
+    }, [user]);
+
+    return <AppContext.Provider value={{currentInstr, setCurrentInstr, loggedIn, setLoggedIn, userId, setUserId, user, setUser,
+        userChanged, setUserChanged
+    }}>
         {children}
     </AppContext.Provider>
 }

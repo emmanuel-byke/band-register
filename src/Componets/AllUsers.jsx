@@ -1,6 +1,6 @@
 import { useState } from "react";
 import UserCard from "./UserCard";
-import Pagination from "./Pagination"; // Ensure you have this component
+import Pagination from "./Pagination";
 
 export default function AllUsers(props) {
     const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +20,7 @@ export default function AllUsers(props) {
                     <UserCard 
                         key={user.id}
                         user={user}
-                        userRole={user.divisions.find(d => d.id === props.divId).userRole}
+                        userRole={user.userRole}
                     />
                 ))}
             </div>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import UserCard from "./UserCard";
 import InfoCard from "./InfoCard";
 
 export default function AllInfoCards(props) {

@@ -1,16 +1,12 @@
 import { useContext, useState } from "react";
 import { AppContext } from '../AppProvider';
-import { getUser } from "../assets";
 import { NavLink } from "react-router-dom";
 import { Settings, User, Bell, CreditCard, Activity, Shield, Upload, Clock, Calendar, AlertCircle } from "lucide-react";
 
 export default function Profile() {
-    const { userId, loggedIn } = useContext(AppContext);
+    const { user, loggedIn } = useContext(AppContext);
     const [isEdit, setIsEdit] = useState(true);
     
-    if(!loggedIn) return null;
-    
-    const user = getUser(userId);
     const memberSince = new Date(user.createdAt).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -19,8 +15,7 @@ export default function Profile() {
 
     const [previewImage, setPreviewImage] = useState(null);
 
-    if(!loggedIn) return null;
-
+    
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if(file) {
@@ -31,8 +26,10 @@ export default function Profile() {
             reader.readAsDataURL(file);
         }
     };
-
-
+    
+    console.log(user)
+    
+    if(!loggedIn) return null;
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 font-poppins">
         {/* Header */}
@@ -41,7 +38,7 @@ export default function Profile() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent">
                     Member Dashboard
                 </h1>
-                <p className="text-gray-600 mt-1 text-sm">Welcome back, <span className="font-semibold text-gray-800">{user.details.firstname}</span>!</p>
+                <p className="text-gray-600 mt-1 text-sm">Welcome back, <span className="font-semibold text-gray-800">{user.fname}</span>!</p>
             </div>
             
             <div className="flex items-center gap-6">
@@ -62,12 +59,12 @@ export default function Profile() {
                 
                 <div className="flex items-center gap-4 ml-6">
                     <div className="text-right">
-                        <p className="font-semibold text-gray-900">{user.details.firstname} {user.details.lastname}</p>
+                        <p className="font-semibold text-gray-900">{user.fname} {user.lname}</p>
                         <p className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{user.role}</p>
                     </div>
                     <div className="relative group">
                         <img 
-                            src={user.details.picture} 
+                            src={user?.profile_picture} 
                             alt="Avatar" 
                             className="w-12 h-12 rounded-full border-2 border-indigo-100 object-cover shadow-sm hover:border-indigo-200 transition-colors"
                         />
@@ -134,7 +131,7 @@ export default function Profile() {
                     <div className="flex flex-col items-center mb-8">
                         <div className="relative group group">
                             <img 
-                                src={previewImage || user.details.picture} 
+                                src={previewImage || user?.profile_picture} 
                                 alt="Profile" 
                                 className="w-32 h-32 rounded-full border-4 border-indigo-100 object-cover shadow-lg hover:border-indigo-200 transition-colors"
                             />
@@ -158,7 +155,7 @@ export default function Profile() {
                                 <label className="text-sm font-medium text-gray-700">First Name</label>
                                 <input
                                     type="text"
-                                    defaultValue={user.details.firstname}
+                                    defaultValue={user.fname}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
                                     disabled={isEdit}
                                 />
@@ -167,7 +164,7 @@ export default function Profile() {
                                 <label className="text-sm font-medium text-gray-700">Last Name</label>
                                 <input
                                     type="text"
-                                    defaultValue={user.details.lastname}
+                                    defaultValue={user.lname}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
                                     disabled={isEdit}
                                 />
@@ -187,7 +184,7 @@ export default function Profile() {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-700">Gender</label>
                                 <select
-                                    defaultValue={user.details.sex}
+                                    defaultValue={user.gender}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 appearance-none bg-select-arrow bg-no-repeat bg-[length:20px] bg-[right_1rem_center]"
                                     disabled={isEdit}
                                 >
@@ -202,7 +199,7 @@ export default function Profile() {
                             <label className="text-sm font-medium text-gray-700">Contact Number</label>
                             <input
                                 type="tel"
-                                defaultValue={user.details.phone}
+                                defaultValue={user.phone_number}
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
                                 disabled={isEdit}
                             />

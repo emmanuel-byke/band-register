@@ -36,9 +36,9 @@ export default function OverlayDetails(props) {
               <h2 className="text-3xl font-bold text-white mb-4" >
                 {props.title}
               </h2>
-              <p className="text-gray-100 text-lg">
+              <div className="text-gray-100 text-lg">
                 {props.desc}
-              </p>
+              </div>
               
               <div className="flex gap-4 justify-center">
                 <button

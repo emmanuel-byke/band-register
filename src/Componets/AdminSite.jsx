@@ -1,297 +1,71 @@
-import React, { cloneElement, useContext, useState } from "react";
-import { AppContext } from '../AppProvider';
-import { addS, allVenues, capitalize, countUsersInDiv, getAllDivisions, getAllUsers, getAvgAttendance, getDateDetails, getDiv, getFormattedTime, getStructuredDivData, getTop5Users, getTopAbsenceReason, getUser, getVenue, pendingActivities, pendingRequest } from "../assets";
-import { Home, Stethoscope, Calendar, Users, Settings, Shield, Menu, Bell, ChevronDown, DollarSign, Heart, FileText, 
-  Notebook, Users2, User, UsersIcon, UsersRound, UserSquare, Mic, UserRoundX, Edit, Search, Plus, 
-  X, 
-  Trash,
+import {
+  Activity,
+  Ban,
+  Bell,
+  Calendar,
+  CalendarCheck,
+  ChevronDown,
+  Edit,
+  Home,
   Image,
   Lamp,
-  Pen,
+  LayoutDashboard,
   LogOut,
-  CalendarCheck,
-  Activity,
-  MoreVertical,
-  MessageSquare,
-  Lock,
-  Trash2} from "lucide-react";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+  Menu,
+  Mic,
+  Plus,
+  Power,
+  Search,
+  Settings,
+  Trash,
+  User,
+  UserRoundX,
+  Users,
+  X
+} from "lucide-react";
+import React, { cloneElement, useContext, useEffect, useState } from "react";
+import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { AppContext } from '../AppProvider';
+import { addS, capitalize, countUsersInDiv } from "../assets";
+import api from "../Services/api";
+import { AttendanceCard, ScheduleCard, UserCard } from "./AdminCards";
 import DropDown from "./DropDown";
-import { GiMagicLamp, GiMagicPortal } from "react-icons/gi";
-
-
-
-const SectionWithPagination = ({ 
-  title, 
-  items, 
-  page, 
-  setPage, 
-  itemsPerPage, 
-  renderItem,
-  className 
-}) => {
-  const totalPages = Math.ceil(items.length / itemsPerPage);
-  const startIndex = (page - 1) * itemsPerPage;
-  const paginatedItems = items.slice(startIndex, startIndex + itemsPerPage);
-
-  return (
-    <section className={`mt-12 ${className}`}>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">{title} ({items.length})</h2>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <span>Page {page} of {totalPages}</span>
-        </div>
-      </div>
-
-      {items.length === 0 ? (
-        <div className="bg-white rounded-lg p-6 text-center text-slate-500">
-          No items found
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedItems.map((item, index) => (
-              <React.Fragment key={index}>
-                {renderItem(item)}
-              </React.Fragment>
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <PaginationControls
-              currentPage={page}
-              totalPages={totalPages}
-              onPrev={() => setPage(p => Math.max(1, p - 1))}
-              onNext={() => setPage(p => Math.min(totalPages, p + 1))}
-              className="mt-8"
-            />
-          )}
-        </>
-      )}
-    </section>
-  );
-};
-
-
-const PaginationControls = ({ currentPage, totalPages, onPrev, onNext, className }) => (
-  <div className={`flex justify-center items-center gap-4 ${className}`}>
-    <button
-      onClick={onPrev}
-      disabled={currentPage === 1}
-      className="px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Previous
-    </button>
-    <span className="text-slate-700 text-sm">
-      Page {currentPage} of {totalPages}
-    </span>
-    <button
-      onClick={onNext}
-      disabled={currentPage === totalPages}
-      className="px-4 py-2 bg-white border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Next
-    </button>
-  </div>
-);
-
-const UserCard = ({ user, currentUserId, onDetails, onMakeAdmin, onDeactivate, onDelete }) => (
-  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
-    {/* User Image */}
-    <div className="relative aspect-square bg-slate-100">
-      <img
-        src={user.details.picture}
-        alt={`${user.details.firstname} ${user.details.lastname}`}
-        className="w-full h-full object-cover object-center"
-      />
-      {/* Online Status */}
-      <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-white/90 px-2 py-1 rounded-full text-xs">
-        <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-        <span className="text-slate-600">Online</span>
-      </div>
-    </div>
-
-    {/* User Info */}
-    <div className="p-4">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-semibold text-slate-800">
-            {capitalize(user.details.firstname)} {capitalize(user.details.lastname)}
-          </h3>
-          <p className="text-sm text-slate-500 mt-1">
-            {user.role === 'admin' && (
-              <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md text-xs">
-                Administrator
-              </span>
-            )}
-          </p>
-        </div>
-
-        {/* Actions Dropdown */}
-        {user.id !==currentUserId && (
-          <DropDown
-            onTop={true}
-            trigger={
-              <button className="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-50">
-                <MoreVertical className="w-6 h-6" />
-              </button>
-            }
-            menuItems={[
-              {
-                label: "View Details",
-                icon: <User className="w-4 h-4 mr-2" />,
-                onClick: onDetails
-              },
-              {
-                label: "Usage Statistics",
-                icon: <Activity className="w-4 h-4 mr-2 text-emerald-600" />,
-                onClick: () => {}
-              },
-              {
-                label: user.role === 'admin' ? "Revoke Admin" : "Make Admin",
-                icon: <Shield className="w-4 h-4 mr-2" />,
-                onClick: onMakeAdmin
-              },
-              {
-                label: "Send Message",
-                icon: <MessageSquare className="w-4 h-4 mr-2 text-blue-600" />,
-                onClick: () => {}
-              },
-              {
-                type: 'divider'
-              },
-              {
-                label: "Deactivate Account",
-                icon: <Lock className="w-4 h-4 mr-2 text-amber-600" />,
-                onClick: onDeactivate,
-                className: "text-amber-700 hover:bg-amber-50"
-              },
-              {
-                label: "Delete Account",
-                icon: <Trash2 className="w-4 h-4 mr-2 text-red-600" />,
-                onClick: onDelete,
-                className: "text-red-700 hover:bg-red-50"
-              }
-            ]}
-            position="right"
-          />
-        )}
-      </div>
-    </div>
-  </div>
-);
-
-const ScheduleCard = ({ item, type, onEdit, onDelete }) => (
-  <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
-    <div className="p-4 border-b border-slate-100">
-      <div className="aspect-video bg-slate-50 rounded-lg flex items-center justify-center">
-        {item.img || item.poster ? (
-          <img 
-            src={type === 'activity' ? item.poster: item.img}
-            alt={type === 'activity' ? item.title : item.place}
-            className="w-full h-full object-contain"
-          />
-        ) : (
-          <div className="text-slate-400 p-6">
-            <Image className="w-8 h-8" />
-          </div>
-        )}
-      </div>
-    </div>
-    
-    <div className="p-4">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-semibold text-slate-800 text-lg">
-            {type === 'activity' ? item.title : `${item.role} - ${item.place}`}
-          </h3>
-          <p className="text-sm text-slate-500 mt-1">
-            {type === 'activity' 
-              ? getDateDetails(item.date).date2
-              : `${getDateDetails(item.date).date2} | ${getFormattedTime(item.from)} - ${getFormattedTime(item.to)}`
-            }
-          </p>
-        </div>
-        
-        <DropDown
-          onTop={true}
-          menuItems={[
-            {
-              label: "Edit",
-              icon: <Edit className="w-4 h-4 mr-2" />,
-              onClick: onEdit,
-            },
-            {
-              label: "Delete",
-              icon: <Trash className="w-4 h-4 mr-2 text-red-500" />,
-              onClick: onDelete,
-              className: "text-red-600 hover:bg-red-50",
-            }
-          ]}
-        />
-      </div>
-    </div>
-  </div>
-);
-
-const AttendanceCard = ({ request, onApprove, onReject }) => {
-  const user = getUser(request.userId);
-  const venue = getVenue(request.venueId);
-  const division = getDiv(request.divId);
-
-  return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 p-6">
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center">
-            <span className="text-slate-500 text-lg font-medium">
-              {user.details.firstname[0]}{user.details.lastname[0]}
-            </span>
-          </div>
-        </div>
-        <div>
-          <h4 className="font-semibold text-slate-800">
-            {user.details.firstname} {user.details.lastname}
-          </h4>
-          <p className="text-sm text-slate-500">
-            {capitalize(division.name)} {capitalize(division.role)} on {getDateDetails(venue.date).date2}
-          </p>
-        </div>
-      </div>
-      
-      <div className="flex gap-3 mt-4">
-        <button
-          onClick={onApprove}
-          className="flex-1 px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors text-sm font-medium"
-        >
-          Approve
-        </button>
-        <button
-          onClick={onReject}
-          className="flex-1 px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
-        >
-          Reject
-        </button>
-      </div>
-    </div>
-  );
-};
+import { PaginationControls, SectionWithPagination } from "./Pagination";
 
 
 export default function AdminSite() {
-  const { userId, loggedIn } = useContext(AppContext);
+  const { user, loggedIn } = useContext(AppContext);
 
-  if (!loggedIn) return <></>;
+  
+  const [users, setUsers] = useState([]);
+  const [userChanged, setUserChanged] = useState(false);
+  const [divisions, setDivisions] = useState([]);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [feedbackDetails, setFeedbackDetails] = useState({
+    sender: null,
+    user: null,
+    title: '',
+    highlighted_title: '',
+    desc: ''
+  });
+  
+  const [activities, setActivities] = useState([]);
+  const [activityFormData, setActivityFormData] = useState(
+    {title: '', desc:'', showPoster:true, poster:null, division_id:'', venue: {date:'', startTime:'', endTime:'', place:'', role:'', img:null}}
+  );
+  const [activityChanged, setActivityChanged] = useState(false);
+  const [scheduleChanged, setScheduleChanged] = useState(false);
+  const [divisionChanged, setDivisionChanged] = useState(false);
+  const [activityIsEditing, setActivityIsEditing] = useState(false);
+  const [venues, setVenues] = useState([]);
+  const [scheduleIsEditing, setScheduleIsEditing] = useState(false);
+  const [divisionIsEditing, setDivisionIsEditing] = useState(false);
+  const [divisionFormData, setDivisionFormData] = useState(
+    { name:'', role:'', userRole:'', isRegistered: true, is_active:true, value:null, showRatings:true, shortWords:'', showVenue:'',
+      title: '', titleDesc:'', titleQuote:'', showUser:true, baseUser:'Member', baseUserModifier:'Available'}
+  );
 
-  const user = getUser(userId);
-  const users = getAllUsers();
-  const divisions = getAllDivisions();
-  const avgAttendance = getAvgAttendance(users).toFixed(1);
-  const topAbsentReason = getTopAbsenceReason(users);
-
-  const activities = pendingActivities;
-  const venues = allVenues;
-  const pendingReq = pendingRequest;
+  const [ pendingRequests, setPendingRequests] = useState([]);
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showDivCreateForm, setShowDivCreateForm] = useState(false);
@@ -307,65 +81,281 @@ export default function AdminSite() {
   const [currentPageRegisters, setCurrentPageRegisters] = useState(1)
   const [currentPageUsers, setCurrentPageUsers] = useState(1);
   
-
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+  const [pendingRequestsChanged, setPendingRequestsChanged] = useState(false);
   
+  const [topAttendance, setTopAttendance] = useState([]);
+  const [topAbsentReason, setTopAbsentReason] = useState([]);
+  const [attendanceOverview, setAttendanceOverview] = useState({
+    total_attendance: 0,
+    total_sessions: 0,
+    top_user: null
+  });
+  const [divOverview, setDivOverview] = useState([]);
+  const [avgAttendance, setAvgAttendance] = useState([]);
+  const [activeUsersCount, setActiveUsersCount] = useState(0);
+  
+  
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await api.getActivities(searchSchedule);
+        setActivities(response.data);
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+      }
+    };
+    fetchActivities();
+  }, [searchSchedule, activityChanged]);
 
-  const filtereUsers = users.filter(user =>
-    user.details.firstname.toLowerCase().includes(searchUser.toLowerCase()) ||
-    user.details.lastname.toLowerCase().includes(searchUser.toLowerCase())
-  );
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        const response = await api.getAllDivVenues(searchSchedule);
+        setVenues(response.data);
+      } catch (error) {
+        console.error('Error fetching All Div Schedules:', error);
+      }
+    };
+    loggedIn && fetchSchedules();
+  }, [searchSchedule, scheduleChanged]);
+  
+  useEffect(() => {
+    const fetchAllPendingSchedules = async () => {
+      try {
+        const params = {param: {search: searchSchedule }}
+        const response = await api.getAllPendingSchedules(params);
+        setPendingRequests(response.data);
+      } catch (error) {
+        console.error('Error fetching All Div Schedules:', error);
+      }
+    };
+    loggedIn && fetchAllPendingSchedules();
+  }, [searchSchedule, pendingRequestsChanged]);
+
+  useEffect(() => {
+    const fetchDivisions = async () => {
+      try {
+        const response = await api.getDivisions(searchDivsion);
+        setDivisions(response.data);
+      } catch (error) {
+        console.error('Error fetching divisions:', error);
+      }
+    };
+    loggedIn && fetchDivisions();
+  }, [searchDivsion, divisionChanged]);
+  
+  const handleActivitySubmit = async (e) => {
+    if(!loggedIn) return;
+    e.preventDefault();
+    const formData = new FormData();
+    ['title', 'desc', 'showPoster', 'poster', 'division_id'].forEach(key => {
+      if((key==='poster' && activityFormData[key] instanceof File) || key!=='poster') {
+        formData.append(key, activityFormData[key]);
+      }
+    });
+    const venueFields = ['date', 'startTime', 'endTime', 'place', 'role'];
+    venueFields.forEach(field => {
+      formData.append(`venue[${field}]`, activityFormData.venue[field] || '');
+    });
+    if (activityFormData.venue.img instanceof File) {
+      formData.append('venue[img]', activityFormData.venue.img);
+    }
+    try {
+      if(isActivity) {
+        activityIsEditing ? await api.updateActivity(activityFormData.id, formData) : await api.createActivity(formData);
+        setActivityChanged(!activityChanged);
+      } else {
+        scheduleIsEditing
+        ? await api.updateVenue(activityFormData.venue.id, activityFormData.venue)
+        : await api.createScheduleVenue(activityFormData.division_id, activityFormData.venue);
+        setScheduleChanged(prev=>!prev);
+      }
+      setActivityFormData(
+        {title:'', desc:'', showPoster:true, poster:null, division_id:'', venue: {date:'', startTime:'', endTime:'', place:'', role:'', img:null}}
+      )
+      setShowScheduleCreate(false);
+    } catch (error) {
+      console.error('Error:', error.response?.data);
+    }
+  };
+  
+  useEffect(()=>{
+    const fetchDivisions = async() => {  
+      
+      try{
+        const max_users = 5;
+        const response = await api.getTopAttendee({max_users});
+        setTopAttendance(response.data.top)
+        setAvgAttendance(response.data.sessions>0?((response.data.attendance/response.data.sessions)*100).toFixed(1):0);
+        setActiveUsersCount(response.data.active_users)
+        setAttendanceOverview({
+          total_attendance:response.data.attendance,
+          total_sessions: response.data.sessions,
+          top_user: response.data.top[0] 
+        })
+      } catch(error) {
+        console.error(error?.response?.data);
+      }
+      try{
+        const totalMonths = 3;
+        const response = await api.getMonthlyAttendance({totalMonths});
+        setDivOverview(response.data)
+      } catch(error) {
+        console.error(error?.response?.data);
+      }
+      try{
+        const divId = 'all';
+        const startDate = '2025-03-01';
+        const endDate = '2025-03-14';
+        const response = await api.getDivisionsDetails({startDate, endDate, divId});
+        // getTopAbsenceReason(users, {start: '2025-03-01', end: '2025-03-14'})
+        setTopAbsentReason(response.data.stats.top_absence_reason)
+      } catch(error) {
+        console.error(error?.response?.data);
+      }
+    }
+    loggedIn && fetchDivisions();
+  }, [user])
+
+  useEffect(()=>{
+    const fetchUsers = async() => {
+      try{
+        const response = await api.getUsers({ param: { search: searchUser} });
+        setUsers(response.data);
+        console.log(response.data);
+      } catch(error) {
+        console.error(error?.response?.data);
+      }
+    }
+    loggedIn && fetchUsers();
+  }, [userChanged]);
+  
   const filtereDivisions = divisions.filter(division =>
     division.name.toLowerCase().includes(searchDivsion.toLowerCase())
   );
-  const filtereActivities = activities.filter(activity =>
-    activity.title.toLowerCase().includes(searchSchedule.toLowerCase()) ||
-    activity.time.toLowerCase().includes(searchSchedule.toLowerCase()) ||
-    getDateDetails(activity.date).date2.toLowerCase().includes(searchSchedule.toLowerCase())
-  );
-  const filtereVenues = venues.filter(venue =>
-    venue.role.toLowerCase().includes(searchSchedule.toLowerCase()) ||
-    venue.place.toLowerCase().includes(searchSchedule.toLowerCase()) ||
-    getFormattedTime(venue.from).toLowerCase().includes(searchSchedule.toLowerCase()) ||
-    getFormattedTime(venue.to).toLowerCase().includes(searchSchedule.toLowerCase()) ||
-    getDateDetails(venue.date).date2.toLowerCase().includes(searchSchedule.toLowerCase())
-  );
+  
+  const handleDivisionCreate = async(e) => {
+    if(!loggedIn) return;
+    e.preventDefault();
+    try{
+      divisionIsEditing? await api.updatedivision(divisionFormData.id, divisionFormData) : await api.createDivision(divisionFormData);
+      setDivisionChanged(prev=>!prev);
+      setShowDivCreateForm(false);
+      setDivisionFormData(
+        { name:'', role:'', userRole:'', isRegistered: true, is_active:true, value:null, showRatings:true, shortWords:'', showVenue:'',
+          title: '', titleDesc:'', titleQuote:'', showUser:true, baseUser:'Member', baseUserModifier:'Available'}
+      );
+    } catch(error) {
+      console.error(error.response?.data)
+    }
+  }
+  
+  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
-  const handleEditActivity = (e) =>{
-    console.log(e);
+  const handleEditDivision = (division) => {
+    setDivisionFormData(division);
+    setDivisionIsEditing(true);
+    setShowDivCreateForm(true);
   }
-  const handleDeleteActivity = (e) =>{
-    console.log(e);
-  }
-  const handleEditVenue = (e) =>{
-    console.log(e);
-  }
-  const handleDeleteVenue = (e) =>{
-    console.log(e);
-  }
-  const handleApproveAttendance = (e) =>{
-    console.log(e);
-  }
-  const handleRejectAttendance = (e) =>{
-    console.log(e);
+  
+  const handleDeleteDivision = async(division_id) =>{
+    if(!loggedIn) return;
+    try {
+      await api.deletedivision(division_id);
+      setDivisionChanged(prev=>!prev);
+    } catch (error) {
+      console.error('Error Deleting activities:', error);
+    }
   }
 
+  const handleActivateDivision = async(division) => {
+    if(!loggedIn) return;
+    try{
+      await api.updatedivision(division.id, {is_active: !division.is_active});
+      setDivisionChanged(prev=>!prev);
+    } catch(error) {
+      console.error(error?.response?.data);
+      
+    }
+  }
+  
+  const handleEditActivity = (activity) =>{
+    setActivityIsEditing(true);
+    setIsActivity(true);
+    setActivityFormData(activity);
+    setShowScheduleCreate(true);
+  }
+  const handleDeleteActivity = async(activity_id) =>{
+    if(!loggedIn) return;
+    try {
+      await api.deleteActivity(activity_id);
+      setActivityChanged(!activityChanged);
+    } catch (error) {
+      console.error('Error Deleting activities:', error);
+      }
+      
+    }
+    const handleEditVenue = (venue) =>{
+      setActivityFormData({...activityFormData, venue: venue});
+      setScheduleIsEditing(true);
+    setIsActivity(false);
+    setShowScheduleCreate(true);
+  }
+  const handleDeleteVenue = async(venue) =>{
+    if(!loggedIn) return;
+    try {
+      await api.deleteVenue(venue.id);
+      setScheduleChanged(prev=>!prev);
+    } catch(error) {
+      console.error(error?.response?.data);
+    }
+  }
+
+  const handleAttendanceResponse = async(pending_req, accepted) =>{
+    if(!loggedIn) return;
+    try {
+      const myForm = {
+        id: pending_req.venue, 
+        username: pending_req.user_detail.username,
+        req_admin_accept: accepted,
+        is_user_state: false,
+      }
+      const response = await api.handleScheduleResponse(pending_req.division, myForm);
+      setPendingRequestsChanged(prev=>!prev);
+    } catch(error) {
+      console.error(error?.response?.data)
+    }
+  }
+  
   const handleUserDetails = (userId) => {
     console.log(userId);
   }
-  const handleMakeAdmin = (userId) => {
-    console.log(userId);
-  }
-  const handleDeactivate = (userId) => {
-    console.log(userId);
+  const changePermissions = async(userId, formData) => {
+    if(!loggedIn) return;
+    try{
+      const response = await api.changeUserPermissions(userId, formData)
+      setUserChanged(prev=>!prev);
+    } catch(error) {
+      console.error(error?.response?.data);
+    }
   }
   const handleDeleteUser = (userId) => {
     console.log(userId);
   }
 
+  const handleFeedback = async() => {
+    if(!loggedIn) return;
+    try{
+      const response = await api.createFeedback(feedbackDetails);
+      console.log(response.data);
+    } catch(error){
+      console.error(error?.response?.data);
+    }
+  }
+
   // Updated menu items to match the image
   const menuItems = [
-    { name: "Dashboard", icon: <Home className="w-5 h-5" />, id: "dashboard" },
+    { name: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" />, id: "dashboard" },
     { name: "Users", icon: <Users className="w-5 h-5" />, id: "users" },
     { name: "Divisions", icon: <Mic className="w-5 h-5" />, id: "divisions" },
     { name: "Schedules", icon: <Edit className="w-5 h-5" />, id: "schedules" },
@@ -374,25 +364,18 @@ export default function AdminSite() {
 
   // Updated stats with colors and icons from the image
   const stats = [
-    { title: "Total Users", value: users.length, change: "+1.7k%", icon: <Users className="w-6 h-6 text-white" />, bg: "bg-gradient-to-r from-pink-500 to-red-400" },
+    { title: "Total Users", value: activeUsersCount, change: "+1.7k%", icon: <Users className="w-6 h-6 text-white" />, bg: "bg-gradient-to-r from-pink-500 to-red-400" },
     { title: "Total Divisions", value: divisions.length, change: "+1 new", icon: <Mic className="w-6 h-6 text-white" />, bg: "bg-gradient-to-r from-green-300 to-emerald-500" },
     { title: "Average Attendance", value: `${avgAttendance}%`, change: "+0.3% today", icon: <Calendar className="w-6 h-6 text-white" />, bg: "bg-gradient-to-r from-[#2196F3] to-sky-700" },
-    { title: "Top Absence Reason", value: topAbsentReason.name, change: `${topAbsentReason.value} times`, icon: <UserRoundX className="w-6 h-6 text-white" />, bg: "bg-gradient-to-r from-purple-400 to-[#9C27B0]" },
+    { title: "Top Absence Reason", value: topAbsentReason.reason, change: `${topAbsentReason.value} time${topAbsentReason.value===1?'':'s'}`, 
+      icon: <UserRoundX className="w-6 h-6 text-white" />, bg: "bg-gradient-to-r from-purple-400 to-[#9C27B0]" },
   ];
 
 
-
-  const totalHoursAttended = getStructuredDivData().map(item => {
-    const result = { month: item.month };
-    item.div.forEach(d => {
-      result[d.name] = d.value;
-    });
-    return result;
-  });
-
   const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
-
+  
+  if (!loggedIn) return <></>;
   return (
     <div className="flex w-full font-open-sans">
   
@@ -479,6 +462,9 @@ export default function AdminSite() {
           </div>
 
           <div className="flex items-center gap-5">
+            <a href="/">
+              <Home className="w-5 h-5 text-slate-500 hover:shadow-2xl hover:text-black" />
+            </a>
             <button className="p-2 hover:bg-slate-100 rounded-full transition-colors relative">
               <Bell className="w-5 h-5 text-slate-600" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
@@ -488,13 +474,13 @@ export default function AdminSite() {
               trigger={
                 <div className="flex items-center gap-2 cursor-pointer group">
                   <img
-                    src={user.details.picture}
+                    src={user.profile_picture}
                     alt="User avatar"
                     className="w-9 h-9 rounded-full object-cover border-2 border-emerald-100 group-hover:border-emerald-200 transition-colors"
                   />
                   <div className="hidden lg:block">
                     <p className="text-slate-700 text-sm font-medium">
-                      {user.details.firstname} {user.details.lastname}
+                      {user.fname} {user.lname}
                       <ChevronDown className="w-4 h-4 inline ml-1 text-slate-400" />
                     </p>
                     <p className="text-xs text-slate-500">Admin Account</p>
@@ -558,7 +544,7 @@ export default function AdminSite() {
                   </div>
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={totalHoursAttended}>
+                      <BarChart data={divOverview}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                         <XAxis 
                           dataKey="month" 
@@ -578,8 +564,8 @@ export default function AdminSite() {
                           }}
                         />
                         <Legend wrapperStyle={{ paddingTop: '20px' }}/>
-                        {totalHoursAttended.length > 0 &&
-                          Object.keys(totalHoursAttended[0])
+                        {divOverview.length > 0 &&
+                          Object.keys(divOverview[0])
                             .filter(key => key !== 'month')
                             .map((key, index) => (
                               <Bar 
@@ -587,6 +573,7 @@ export default function AdminSite() {
                                 dataKey={key}
                                 fill={COLORS[index % COLORS.length]}
                                 radius={[4, 4, 0, 0]}
+                                minPointSize={3}
                               />
                         ))}
                       </BarChart>
@@ -604,7 +591,7 @@ export default function AdminSite() {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         layout="vertical"
-                        data={getTop5Users()}
+                        data={topAttendance}
                         margin={{ left: 120, right: 20 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -628,7 +615,7 @@ export default function AdminSite() {
                           }}
                         />
                         <Bar 
-                          dataKey="total"
+                          dataKey="total_attendance"
                           fill="#4f46e5"
                           radius={[0, 4, 4, 0]}
                         />
@@ -645,9 +632,11 @@ export default function AdminSite() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-semibold mb-2">Schedule Management</h3>
-                      <p className="text-sm opacity-90">{pendingReq.length} pending reviews</p>
-                      <button className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors">
-                        Review Now
+                      <p className="text-sm opacity-90">{pendingRequests.length} pending review{pendingRequests.length===1?'':'s'}</p>
+                      <button 
+                        className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition-colors"
+                        onClick={()=>setActivePage('schedules')}>
+                          Review Now
                       </button>
                     </div>
                     <CalendarCheck className="w-12 h-12 opacity-20" />
@@ -658,8 +647,8 @@ export default function AdminSite() {
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                   <div className="flex justify-between items-center mb-4">
                     <div>
-                      <h3 className="font-semibold text-slate-800">System Health</h3>
-                      <p className="text-sm text-slate-500">Platform performance</p>
+                      <h3 className="font-semibold text-slate-800">Attendance Analysis</h3>
+                      <p className="text-sm text-slate-500">Quick Attendance Statistics</p>
                     </div>
                     <div className="text-emerald-600 bg-emerald-100 p-2 rounded-lg">
                       <Activity className="w-5 h-5" />
@@ -668,28 +657,32 @@ export default function AdminSite() {
                   <div className="space-y-4">
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-slate-700">Storage Usage</span>
-                        <span className="text-slate-600">65%</span>
+                        <span className="text-slate-700">Total Attendance</span>
+                        <span className="text-slate-600">
+                          {attendanceOverview.total_sessions>0?(attendanceOverview.total_attendance/attendanceOverview.total_sessions)*100:0}%
+                        </span>
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2">
                         <div 
                           className="bg-emerald-600 h-2 rounded-full transition-all duration-500" 
-                          style={{ width: '65%' }}
+                          style={{ width: `${attendanceOverview.total_sessions>0?(attendanceOverview.total_attendance/attendanceOverview.total_sessions)*100:0}%` }}
                         />
                       </div>
                     </div>
-                    <div>
+                    {attendanceOverview.top_user && <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-slate-700">Active Users</span>
-                        <span className="text-slate-600">84%</span>
+                        <span className="text-slate-700">{attendanceOverview.top_user.name}'s Contribution</span>
+                        <span className="text-slate-600">
+                          {attendanceOverview.total_sessions>0?(attendanceOverview.top_user.total_attendance/attendanceOverview.total_attendance)*100:0}%
+                        </span>
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-2">
                         <div 
                           className="bg-blue-600 h-2 rounded-full transition-all duration-500" 
-                          style={{ width: '84%' }}
+                          style={{ width: `${attendanceOverview.total_sessions>0?(attendanceOverview.top_user.total_attendance/attendanceOverview.total_attendance)*100:0}%` }}
                         />
                       </div>
-                    </div>
+                    </div>}
                   </div>
                 </div>
               </div>
@@ -728,23 +721,87 @@ export default function AdminSite() {
               {/* User Grid with Pagination */}
               <SectionWithPagination
                 title="Registered Users"
-                items={filtereUsers.filter(u => searchUser !== '' || u.id !== user.id)}
+                items={users.filter(u => searchUser !== '' || u.id !== user.id)}
                 page={currentPageUsers}
                 setPage={setCurrentPageUsers}
                 itemsPerPage={9}
-                renderItem={(u) => (
+                renderItem={(renderedUser) => (
                   <UserCard 
-                    user={u}
+                    user={renderedUser}
                     currentUserId={user.id}
-                    onDetails={() => handleUserDetails(u.id)}
-                    onMakeAdmin={() => handleMakeAdmin(u.id)}
-                    onDeactivate={() => handleDeactivate(u.id)}
-                    onDelete={() => handleDeleteUser(u.id)}
+                    onDetails={() => handleUserDetails(renderedUser.id)}
+                    onMakeAdmin={() => changePermissions(renderedUser.id, {request_id: user.id, admin: !renderedUser.is_admin })}
+                    onDeactivate={() => changePermissions(renderedUser.id, {request_id: user.id, activate: !renderedUser.is_active })}
+                    onDelete={() => handleDeleteUser(renderedUser.id)}
+                    onFeedback={()=> {
+                      setShowFeedbackForm(true);
+                      setFeedbackDetails({...feedbackDetails, sender: user.id, user: renderedUser.id})
+                    }}
                   />
                 )}
                 emptyMessage="No users found matching your search criteria"
               />
             </div>
+            {
+              showFeedbackForm && 
+              <div className="fixed inset-0 bg-opacity-30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                  <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl relative p-8">
+                    <button 
+                      className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors"
+                      onClick={() => setShowFeedbackForm(false)}
+                    >
+                      <X className="h-6 w-6 text-slate-600" />
+                    </button>
+                    
+                    <h2 className="text-2xl font-bold text-slate-800 mb-8 text-center">
+                      Send Feedback
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+                        <input 
+                          type="text"
+                          className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                          placeholder="You're awesome"
+                          value={feedbackDetails.title}
+                          onChange={(e)=>{setFeedbackDetails({...feedbackDetails, title: e.target.value})}}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Highlighted Part</label>
+                        <input 
+                          type="text"
+                          className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                          placeholder="Singer"
+                          value={feedbackDetails.highlighted}
+                          onChange={(e)=>{setFeedbackDetails({...feedbackDetails, highlighted_title: e.target.value})}}
+                        />
+                      </div>
+                    </div>
+                  <div className="space-y-1 col-span-full">
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                    <textarea
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+                      placeholder="This past month, you have...."
+                      rows="3"
+                      value={feedbackDetails.desc}
+                      onChange={(e)=>{setFeedbackDetails({...feedbackDetails, desc: e.target.value})}}
+                    />
+                  </div>
+                  <div className="w-full flex flex-row-reverse">
+                    <button 
+                      className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors self-end"
+                      onClick={()=>{
+                        setShowFeedbackForm(false);
+                        handleFeedback();
+                      }}
+                      >
+                      Create Feedback
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
           </main>
         )}
 
@@ -762,7 +819,10 @@ export default function AdminSite() {
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-8">
                   <button 
                     className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all duration-200"
-                    onClick={() => setShowDivCreateForm(true)}
+                    onClick={() => {
+                      setShowDivCreateForm(true);
+                      setDivisionIsEditing(false);
+                    }}
                   >
                     <Plus className="w-5 h-5 text-white" />
                     <span className="text-sm font-semibold">Create Division</span>
@@ -806,7 +866,9 @@ export default function AdminSite() {
                           <input 
                             type="text"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                            placeholder="Marketing Team"
+                            placeholder="Keyboard"
+                            value={divisionFormData.name}
+                            onChange={(e)=>{setDivisionFormData({...divisionFormData, name: e.target.value})}}
                           />
                         </div>
                         <div className="space-y-1">
@@ -814,7 +876,9 @@ export default function AdminSite() {
                           <input 
                             type="text"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                            placeholder="Brand Management"
+                            placeholder="Training"
+                            value={divisionFormData.role}
+                            onChange={(e)=>{setDivisionFormData({...divisionFormData, role: e.target.value})}}
                           />
                         </div>
                       </div>
@@ -824,7 +888,9 @@ export default function AdminSite() {
                         <input 
                           type="text"
                           className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                          placeholder="Empowering creativity"
+                          placeholder="Talent for Jesus"
+                          value={divisionFormData.shortWords}
+                          onChange={(e)=>{setDivisionFormData({...divisionFormData, shortWords: e.target.value})}}
                         />
                       </div>
 
@@ -834,7 +900,9 @@ export default function AdminSite() {
                           <input 
                             type="text"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                            placeholder="Global Outreach"
+                            placeholder="Mission"
+                            value={divisionFormData.title}
+                            onChange={(e)=>{setDivisionFormData({...divisionFormData, title: e.target.value})}}
                           />
                         </div>
                         <div className="space-y-1">
@@ -843,6 +911,8 @@ export default function AdminSite() {
                             type="text"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                             placeholder="Expand market reach"
+                            value={divisionFormData.titleDesc}
+                            onChange={(e)=>{setDivisionFormData({...divisionFormData, titleDesc: e.target.value})}}
                           />
                         </div>
                         <div className="space-y-1">
@@ -851,6 +921,8 @@ export default function AdminSite() {
                             type="text"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                             placeholder="Innovate or stagnate"
+                            value={divisionFormData.titleQuote}
+                            onChange={(e)=>{setDivisionFormData({...divisionFormData, titleQuote: e.target.value})}}
                           />
                         </div>
                       </div>
@@ -861,10 +933,14 @@ export default function AdminSite() {
                           <input 
                             type="file"
                             className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-colors"
+                            onChange={(e)=>{setDivisionFormData({...divisionFormData, value: e.target.files[0]})}}
                           />
                         </div>
-                        <button className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors self-end">
-                          Create Division
+                        <button 
+                          className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors self-end"
+                          onClick={handleDivisionCreate}
+                          >
+                          {divisionIsEditing?'Update':'Create'} Division
                         </button>
                       </div>
                     </div>
@@ -877,12 +953,12 @@ export default function AdminSite() {
                 {filtereDivisions.map((division, index) => (
                   <div key={index} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
                     <div className="p-4 border-b border-slate-100">
-                      <div className="aspect-square bg-slate-50 rounded-lg flex items-center justify-center">
+                      <div className={`aspect-square ${division.is_active?'bg-slate-50': 'bg-slate-300'} rounded-lg flex items-center justify-center`}>
                         {division.value ? (
                           <img 
                             src={division.value}
                             alt={division.name}
-                            className="w-full h-full object-contain p-4"
+                            className={`w-full h-full object-contain p-4 ${division.is_active?'': 'filter grayscale'}`}
                           />
                         ) : (
                           <Image className="w-12 h-12 text-slate-400" />
@@ -909,15 +985,22 @@ export default function AdminSite() {
                             {
                               label: "Update",
                               icon: <Edit className="w-4 h-4 mr-2" />,
-                              onClick: () => {},
+                              onClick: () => {handleEditDivision(division)},
                               className: "text-slate-700 hover:bg-slate-50 px-4 py-2"
+                            },
+                            {
+                              label: `${division.is_active?'De':''}activate ${capitalize(division.name)} Division`,
+                              icon: division.is_active? <Ban className="w-4 h-4 mr-2 mt-2 text-red-500" />
+                                : <Power className="w-4 h-4 mr-2 mt-2 text-emerald-400" />,
+                              onClick: () => {handleActivateDivision(division)},
+                              className: "text-red-600 hover:bg-red-50 px-4 py-2"
                             },
                             {
                               label: "Delete Division",
                               icon: <Trash className="w-4 h-4 mr-2 text-red-500" />,
-                              onClick: () => {},
+                              onClick: () => {handleDeleteDivision(division.id)},
                               className: "text-red-600 hover:bg-red-50 px-4 py-2"
-                            }
+                            },
                           ]}
                         />
                       </div>
@@ -951,7 +1034,11 @@ export default function AdminSite() {
                   <button 
                     className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg shadow-md hover:bg-indigo-700 
                       hover:shadow-lg transition-all duration-200 font-semibold text-sm"
-                    onClick={() => setShowScheduleCreate(true)}
+                    onClick={() => {
+                      setShowScheduleCreate(true);
+                      setActivityIsEditing(false);
+                      setScheduleIsEditing(false);
+                    }}
                   >
                     <Plus className="w-5 h-5 text-white" />
                     Create Schedule
@@ -1009,24 +1096,30 @@ export default function AdminSite() {
 
                         {/* Date and Time Inputs */}
                         <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">Date *</label>
                           <input 
                             type="date"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+                            value={activityFormData.venue.date}
+                            onChange={(e)=>{setActivityFormData({...activityFormData, venue: { ...activityFormData.venue, date: e.target.value }})}}
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700 mb-1">Start Time</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">Start Time *</label>
                           <input 
                             type="time"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+                            value={activityFormData.venue.startTime}
+                            onChange={(e)=>{setActivityFormData({...activityFormData, venue:{...activityFormData.venue, startTime: e.target.value}})}}
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700 mb-1">End Time</label>
+                          <label className="block text-sm font-medium text-slate-700 mb-1">End Time {isActivity?'': '*'} </label>
                           <input 
                             type="time"
                             className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
+                            value={activityFormData.venue.endTime}
+                            onChange={(e)=>{setActivityFormData({...activityFormData, venue:{...activityFormData.venue, endTime: e.target.value}})}}
                           />
                         </div>
 
@@ -1039,6 +1132,8 @@ export default function AdminSite() {
                                 type="text"
                                 className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
                                 placeholder="Enter venue name"
+                                value={activityFormData.venue.place}
+                                onChange={(e)=>{setActivityFormData({...activityFormData, venue:{...activityFormData.venue, place: e.target.value}})}}
                               />
                             </div>
                             <div className="space-y-1">
@@ -1047,15 +1142,18 @@ export default function AdminSite() {
                                 type="text"
                                 className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
                                 placeholder="Enter role"
+                                value={activityFormData.venue.role}
+                                onChange={(e)=>{setActivityFormData({...activityFormData, venue:{...activityFormData.venue, role: e.target.value}})}}
                               />
                             </div>
                             <div className="space-y-1">
                               <label className="block text-sm font-medium text-slate-700 mb-1">Division</label>
                               <DropDown
                                 component={<span className="text-sm">Select Division</span>}
+                                onTop={true}
                                 menuItems={divisions.map(division => ({
                                   label: division.name,
-                                  onClick: () => handleDivisionSelect(division.id),
+                                  onClick: () =>setActivityFormData({...activityFormData, division_id: division.id}),
                                 }))}
                               />
                             </div>
@@ -1063,11 +1161,13 @@ export default function AdminSite() {
                         ) : (
                           <>
                             <div className="space-y-1 col-span-full">
-                              <label className="block text-sm font-medium text-slate-700 mb-1">Activity Title</label>
+                              <label className="block text-sm font-medium text-slate-700 mb-1">Activity Title *</label>
                               <input 
                                 type="text"
                                 className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
                                 placeholder="Enter activity title"
+                                value={activityFormData.title}
+                                onChange={(e)=>{setActivityFormData({...activityFormData, title: e.target.value})}}
                               />
                             </div>
                             <div className="space-y-1 col-span-full">
@@ -1076,6 +1176,8 @@ export default function AdminSite() {
                                 className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
                                 placeholder="Enter activity description"
                                 rows="3"
+                                value={activityFormData.desc}
+                                onChange={(e)=>{setActivityFormData({...activityFormData, desc: e.target.value})}}
                               />
                             </div>
                             <div className="space-y-1">
@@ -1083,6 +1185,10 @@ export default function AdminSite() {
                               <input 
                                 type="file"
                                 className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 transition-colors text-sm"
+                                onChange={(e) => {
+                                  setActivityFormData(prev => ({...prev, poster: e.target.files[0]
+                                  }))
+                                }}
                               />
                             </div>
                           </>
@@ -1094,8 +1200,9 @@ export default function AdminSite() {
                         <button 
                           type="submit"
                           className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-semibold float-right"
+                          onClick={handleActivitySubmit}
                         >
-                          {isActivity ? 'Create Activity' : 'Create Schedule'}
+                          {activityIsEditing||scheduleIsEditing?'Update':'Create'} {isActivity ? ' Activity' : ' Schedule'}
                         </button>
                       </div>
                     </form>
@@ -1106,23 +1213,23 @@ export default function AdminSite() {
               
               <SectionWithPagination
                 title="Pending Activities"
-                items={filtereActivities}
+                items={activities}
                 page={currentPageActivities}
                 setPage={setCurrentPageActivities}
-                itemsPerPage={6}
+                itemsPerPage={3}
                 renderItem={(activity) => (
                   <ScheduleCard 
                     item={activity}
                     type="activity"
-                    onEdit={handleEditActivity}
-                    onDelete={handleDeleteActivity}
+                    onEdit={()=>handleEditActivity(activity)}
+                    onDelete={()=>handleDeleteActivity(activity.id)}
                   />
                 )}
               />
 
               <SectionWithPagination
                 title="Pending Schedules"
-                items={filtereVenues}
+                items={venues}
                 page={currentPageVenues}
                 setPage={setCurrentPageVenues}
                 itemsPerPage={3}
@@ -1130,8 +1237,8 @@ export default function AdminSite() {
                   <ScheduleCard
                     item={venue}
                     type="venue"
-                    onEdit={handleEditVenue}
-                    onDelete={handleDeleteVenue}
+                    onEdit={()=>handleEditVenue(venue)}
+                    onDelete={()=>handleDeleteVenue(venue)}
                   />
                 )}
               />
@@ -1139,26 +1246,26 @@ export default function AdminSite() {
               
               <div className="mt-12">
                 <h2 className="text-2xl font-bold text-slate-800 mb-6">
-                  Attendance Approval ({pendingReq.length})
+                  Attendance Approval ({pendingRequests.length})
                 </h2>
                 
-                {pendingReq.length > 0 ? (
+                {pendingRequests.length > 0 ? (
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {pendingReq.slice((currentPageRegisters-1)*registersPerPage, ((currentPageRegisters-1)*registersPerPage)+registersPerPage).map((req, index) => (
+                      {pendingRequests.slice((currentPageRegisters-1)*registersPerPage, ((currentPageRegisters-1)*registersPerPage)+registersPerPage).map((req, index) => (
                         <AttendanceCard 
                           key={index}
                           request={req}
-                          onApprove={handleApproveAttendance}
-                          onReject={handleRejectAttendance}
+                          onApprove={()=>handleAttendanceResponse(req, true)}
+                          onReject={()=>handleAttendanceResponse(req, false)}
                         />
                       ))}
                     </div>
                     <PaginationControls
                       currentPage={currentPageRegisters}
-                      totalPages={Math.ceil(pendingReq.length / registersPerPage)}
+                      totalPages={Math.ceil(pendingRequests.length / registersPerPage)}
                       onPrev={() => setCurrentPageRegisters(p => Math.max(1, p - 1))}
-                      onNext={() => setCurrentPageRegisters(p => Math.min(Math.ceil(pendingReq.length / registersPerPage), p + 1))}
+                      onNext={() => setCurrentPageRegisters(p => Math.min(Math.ceil(pendingRequests.length / registersPerPage), p + 1))}
                       className="mt-8"
                     />
                   </>

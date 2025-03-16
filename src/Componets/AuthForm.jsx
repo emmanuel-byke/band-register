@@ -1,22 +1,28 @@
+import { useState } from "react";
 import { ArrowRight } from 'lucide-react';
-import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useNavigate, NavLink, useLocation } from 'react-router-dom';
+import { login, signup } from "../Services/auth";
+import useAuth from "../Services/useAuth";
 
 export default function AuthForm() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(useLocation()?.state?.isLogin??true);
+  const navigate = useNavigate();
+  const { refreshUser } = useAuth();
+  
+
   const [formData, setFormData] = useState({
     username: '',
     fname: '',
     lname: '',
     password: '',
-    phone: '',
+    phone_number: '',
   });
   const [errors, setErrors] = useState({
     username: '',
     fname: '',
     lname: '',
     password: '',
-    phone: '',
+    phone_number: '',
   });
 
   const handleInputChange = (e) => {
@@ -30,7 +36,7 @@ export default function AuthForm() {
       fname: '',
       lname: '',
       password: '',
-      phone: ''
+      phone_number: ''
     };
 
     if (isLogin) {
@@ -49,10 +55,10 @@ export default function AuthForm() {
       } else if (formData.password.length < 6) {
         newErrors.password = 'Password must be at least 6 characters';
       }
-      if (!formData.phone.trim()) {
-        newErrors.phone = 'Phone number is required';
-      } else if (!/^\d{10}$/.test(formData.phone)) {
-        newErrors.phone = 'Invalid phone number (10 digits required)';
+      if (!formData.phone_number.trim()) {
+        newErrors.phone_number = 'phone number is required';
+      } else if (!/^\d{10}$/.test(formData.phone_number)) {
+        newErrors.phone_number = 'Invalid phone number (10 digits required)';
       }
     }
 
@@ -60,11 +66,16 @@ export default function AuthForm() {
     return Object.values(newErrors).every(error => error === '');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log('Form submitted:', formData);
-      // Add your submission logic here
+    if (!validateForm()) return;
+    try {
+      isLogin ? await login(formData) : await signup(formData);
+      refreshUser();
+      navigate('/');
+      setFormData({ username: '', fname: '', lname: '', password: '', phone_number: '', });
+    } catch (error) {
+      console.error(`${isLogin ? 'Login' : 'Signup'} failed:`, error.response?.data);
     }
   };
 
@@ -76,9 +87,12 @@ export default function AuthForm() {
       fname: '',
       lname: '',
       password: '',
-      phone: ''
+      phone_number: ''
     });
   };
+
+
+
 
   return (
     <header className="min-h-screen relative overflow-hidden font-lora">
@@ -158,25 +172,40 @@ export default function AuthForm() {
 
                 <button
                   type='submit'
-                  className="w-full py-3 px-6 mt-8 text-[22px] text-white font-lora font-bold rounded-lg
-                    border-t-1 border-r-2 border-t-zinc-700 hover:bg-sky-400 hover:rounded-4xl
-                    transform transition-all duration-200 hover:scale-105
-                    active:scale-95 shadow-lg hover:shadow-xl active:shadow-md"
+                  className="w-full py-4 mt-12 text-xl font-semibold text-white bg-gradient-to-r from-sky-500 to-emerald-500 
+                    rounded-2xl shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:scale-[1.02] 
+                    hover:from-sky-600 hover:to-emerald-600 active:scale-95"
                 >
-                  Submit
+                  Sign In
                 </button>
               </form>
-              <p className="mt-6 text-center text-white/80">
-                New here?{' '}
-                <button
-                  onClick={() => { setIsLogin(false); clearErrors(); }}
-                  className="text-sky-400 hover:text-green-400 font-semibold underline underline-offset-2 
-                    transition-colors cursor-pointer"
-                >
-                  Create Account
-                </button>
-              </p>
+              <p className="text-white/80">
+              New to our community?{' '}
+              <button
+                onClick={() => { setIsLogin(false); clearErrors(); }}
+                // onClick={() => { setIsLogin(false); clearErrors(); }}
+                className="font-semibold text-emerald-300 hover:text-white underline-offset-4 hover:underline 
+                  transition-all"
+              >
+                Join Now
+              </button>
+            </p>
             </div>
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
 
             {/* Signup Form */}
             <div className={`absolute top-0 left-0 right-0 backdrop-blur-lg rounded-2xl shadow-2xl p-8 transition-all 
@@ -217,14 +246,14 @@ export default function AuthForm() {
                 <div>
                   <input
                     type="tel"
-                    name="phone"
-                    value={formData.phone}
+                    name="phone_number"
+                    value={formData.phone_number}
                     onChange={handleInputChange}
                     placeholder="088 123 4567"
                     className="w-full px-4 py-3 text-white bg-white/20 rounded-xl border border-white/30 focus:ring-2 
                       focus:ring-cyan-400 focus:border-transparent outline-none transition-all placeholder:text-white/70"
                   />
-                  {errors.phone && <p className="text-red-400 text-sm mt-1">{errors.phone}</p>}
+                  {errors.phone_number && <p className="text-red-400 text-sm mt-1">{errors.phone_number}</p>}
                 </div>
                 <div>
                   <input

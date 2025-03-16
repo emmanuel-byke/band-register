@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { pendingActivities, selectActivityByDate, selectVenueByDate } from "../assets";
+import { useEffect, useState } from "react";
+import api from "../Services/api";
 import Activity from "./Activity";
 import Pagination from "./Pagination";
 
@@ -8,12 +8,24 @@ import Pagination from "./Pagination";
 export default function ActivitiesSummary() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 3;
-    const allActivities = selectActivityByDate(pendingActivities, itemsPerPage * 3);
-    const totalPages = Math.ceil(allActivities.length / itemsPerPage);
-    const paginatedActivities = allActivities.slice(
+    const [activities, setActivities] = useState([]);
+    const totalPages = Math.ceil(activities.length / itemsPerPage);
+    const paginatedActivities = activities.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
+
+    useEffect(() => {
+        const fetchActivities = async () => {
+          try {
+            const response = await api.getActivities('');
+            setActivities(response.data);
+          } catch (error) {
+            console.error('Error fetching activities:', error?.response?.data);
+          }
+        };
+        fetchActivities();
+      }, []);
 
     return (
         <section className="flex flex-col justify-center items-center gap-8 mt-10" id="activities">

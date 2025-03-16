@@ -1,44 +1,64 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from '../AppProvider';
-import { capitalize, getStat, getUser } from "../assets";
+import { capitalize } from "../assets";
+import api from "../Services/api";
 import SectionDivider from "./SectionDivider";
-import ColorDisplay from "./ImageColorExtractor";
 
 export default function Feedback() {
-  const{ userId, loggedIn } = useContext(AppContext);
+  const{ user, loggedIn } = useContext(AppContext);
+  const [feedback, setFeedback] = useState([]);
 
-  if(loggedIn) {
-    const user = getUser(userId);
+  useEffect(()=>{
+    const fetchFeedbacks = async() => {
+      try{
+        const response = await api.getFeedbacks('');
+        setFeedback(response.data.length>0?response.data[response.data.length-1]:[]);
+        console.log(response.data);
+      } catch(error) {
+        console.error(error?.response?.data);
+      }
+    }
+    loggedIn && fetchFeedbacks();
+  }, []);
 
-    return (
-      <header className="flex flex-col flex-wrap justify-center items-center">
-        <div className="mt-40">
-          <SectionDivider value="Feedback" />
+
+  if(!loggedIn) return <></>
+  return (
+    <main className="flex flex-col flex-wrap justify-center items-center">
+      <div className="mt-40">
+        <SectionDivider value="Feedback" />
+      </div>
+  
+      <div className="w-full flex flex-row flex-wrap justify-center items-center gap-20 mt-30">
+        {/* Text Content Container */}
+        <div className="flex flex-col items-center flex-1 max-w-2xl mr-8">
+          <h1 className={`text-black text-[30px] font-roboto-slab text-center flex flex-row gap-5`}>
+            { feedback.title }
+            <span className="text-blue-400"> 
+              { feedback.highlighted_title }
+              </span>
+          </h1>
+          <p className="text-gray text-[20px] text-center font-roboto-slab font-normal mt-5">
+            {feedback.desc}  
+          </p>
+          <p className="text-slate-400 text-[18px] text-center font-roboto font-normal italic mt-5">
+            {capitalize(`${feedback?.sender_detail?.fname[0]}. ${feedback?.sender_detail?.lname} [admin]`)}  
+          </p>
         </div>
-    
-        <div className="w-full flex flex-row justify-between items-center mt-30">
-          {/* Text Content Container */}
-          <div className="flex flex-col items-center flex-1 max-w-2xl mr-8">
-            <h1 className={`text-black text-[30px] font-roboto-slab text-center`}>
-              {user.feedback.title}
-              <span className="text-blue-400"> {user.feedback.highlitedTitle}</span>
-            </h1>
-            <p className="text-gray text-[20px] text-center font-roboto-slab font-normal mt-5">
-              {user.feedback.desc}
-            </p>
-          </div>
-    
-          
-          <div className="flex-shrink-0 relative top-0 right-0">
+  
+        
+        <div className="flex-shrink-0 relative top-0 right-0">
+          {feedback?.user_detail?.profile_picture && 
             <img 
-              src={user.details.picture} 
-              alt={`picture of ${user.details.username}`} 
+              src={user.profile_picture} 
+              alt={`picture of ${user.username}`} 
               className="w-130 h-139 object-contain sticky top-0 " 
             />
-          </div>
+          }
         </div>
-      </header>
-    );
-  }
-  return <></>
+      </div>
+      <div className="mt-20"/>
+    </main>
+  );
+
 }

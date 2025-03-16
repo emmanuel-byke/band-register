@@ -1,12 +1,11 @@
 import { useContext } from "react";
+import { NavLink } from "react-router-dom";
 import { AppContext } from '../AppProvider';
 import ChooserCard from "./ChooserCard";
-import { NavLink } from "react-router-dom";
-import { getUser } from "../assets";
+
 
 export default function ImageChooser() {
-    const{ currentInstr, setCurrentInstr, userId } = useContext(AppContext)
-    const user = getUser(userId);
+    const{ currentInstr, setCurrentInstr, user } = useContext(AppContext)
 
     return (
     <header className="max-w-6xl mx-auto p-6 space-y-8">
@@ -54,17 +53,16 @@ export default function ImageChooser() {
             )}
         </div>
 
-        
         {user?.divisions && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
-                {Object.values(user.divisions).map((item, index) => (
+                {Object.values(user.divisions).map((divId, index) => (
                     <ChooserCard 
                         key={index}
                         currentImg={currentInstr}
                         setCurrentImg={setCurrentInstr}
-                        item={item}
+                        divId={divId}
                         className={`transform transition-all duration-300 hover:scale-105 ${
-                            currentInstr?.id === item.id 
+                            currentInstr?.id === divId
                                 ? 'ring-4 ring-blue-500' 
                                 : 'ring-1 ring-gray-200 hover:ring-blue-300'
                         }`}

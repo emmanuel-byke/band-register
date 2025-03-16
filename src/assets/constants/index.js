@@ -9,6 +9,14 @@ export const navHeaders = [
     {name: "Contact Us", href: "#contact-us", loginCheck: false},
 ]
 
+export const detailsNavHeaders = [
+    {name: "Home", href: "/", loginCheck: false},
+    {name: "Upcoming", href: "#upcoming-sessions", loginCheck: true},
+    {name: "Mission", href: "#mission", loginCheck: false},
+    {name: "Members", href: "#available-members", loginCheck: false},
+    {name: "Contact Us", href: "#contact-us", loginCheck: false},
+]
+
 export const isLoggedIn = false;
 
 

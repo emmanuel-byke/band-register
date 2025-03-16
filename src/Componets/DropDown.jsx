@@ -65,8 +65,8 @@ export default function DropDown(props) {
                             <button
                                 key={index}
                                 className={`${item.styles} w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100/80 
-                                    active:bg-gray-100 transition-colors duration-200 rounded-md font-medium font-inter outline-none 
-                                    hover:text-gray-900 flex flex-row gap-2`}
+                                    active:bg-gray-100 transition-colors duration-200 rounded-md font-medium ${props.font || 'font-inter'} 
+                                    outline-none hover:text-gray-900 flex flex-row gap-2`}
                                 role="menuitem"
                                 onClick={() => {
                                     item.onClick?.();

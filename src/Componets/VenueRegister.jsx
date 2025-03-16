@@ -1,16 +1,31 @@
 import { ArrowLeft, CheckCircle2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { capitalize, getDateDetails, getFormattedTime } from '../assets';
+import api from '../Services/api';
 
-export default function VenueRegister(props) {
-    const day = capitalize(getDateDetails(props.data.date).date2);
-    const startTime = getFormattedTime(props.data.from);
-    const endTime = getFormattedTime(props.data.to);
+export default function VenueRegister({venue, divId, username, setScheduleChanged}) {
+    const day = capitalize(getDateDetails(venue.date).date2);
+    const startTime = getFormattedTime(venue.startTime);
+    const endTime = getFormattedTime(venue.endTime);
 
     const [isOpen, setIsOpen] = useState(false);
     const [attended, setAttended] = useState(null);
     const [selectedReason, setSelectedReason] = useState('');
     const [hasSubmitted, setHasSubmitted] = useState(false);
+    const [division, setDivision] = useState({});
+    
+
+    useEffect(()=>{
+        const fetchDivisions = async()=>{
+            try{
+                const response = await api.getDivision(divId);
+                setDivision(response.data);
+            } catch(error) {
+                console.error(error?.response?.data);                
+            }
+        }
+        fetchDivisions();
+    }, []);
 
     const handleResponse = (response) => {
         if (response) {
@@ -22,14 +37,28 @@ export default function VenueRegister(props) {
         }
     };
 
-    const handleReasonSubmit = () => {
-        setHasSubmitted(true);
-        setTimeout(() => {
-            setIsOpen(false);
-            setAttended(null);
-            setSelectedReason('');
-            setHasSubmitted(false);
-        }, 2000);
+    const handleSubmit = async(admin_review) => {        
+        try {
+            const { divisions, is_user_associated, ...myForm} = venue;
+            myForm.reason = selectedReason;
+            myForm.username = username;
+            myForm.req_admin_review = admin_review;
+            myForm.is_user_state = true;
+            await api.handleScheduleResponse(divId, myForm);
+
+            setScheduleChanged(prev=>!prev);
+            if(admin_review) {
+                setHasSubmitted(true);
+                setTimeout(() => {
+                    setIsOpen(false);
+                    setAttended(null);
+                    setSelectedReason('');
+                    setHasSubmitted(false);
+                }, 2000);
+            }
+        } catch(error) {
+            console.error(error?.response?.data);            
+        }
     };
 
     return (
@@ -42,10 +71,10 @@ export default function VenueRegister(props) {
                 <div className="flex flex-col items-center space-y-4">
                     <CheckCircle2 className="w-12 h-12 text-emerald-500" />
                     <h3 className="text-lg font-semibold text-gray-800 text-center">
-                        {day} {capitalize(props.data.place)}
+                        {capitalize(day)} 
                     </h3>
-                    <p className="text-sm text-gray-500 text-center">
-                        {capitalize(`${props.name} ${props.data.role}`)}
+                    <p className="text-md text-gray-400 text-center">
+                        {capitalize(`${division.name} | ${venue.role}`)}
                     </p>
                 </div>
             </div>
@@ -59,16 +88,16 @@ export default function VenueRegister(props) {
                     >
                         {/* Modal Header */}
                         <div className="relative h-48 bg-gray-100">
-                            <img
-                                src={props.img}
-                                alt={props.name}
+                            {division?.value && <img
+                                src={division.value}
+                                alt={division.name}
                                 className="w-full h-full object-contain"
-                            />
+                            />}
                             <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent" />
                             
                             <div className="absolute bottom-4 left-4 text-white">
-                                <h2 className="text-xl font-bold">{capitalize(props.name)}</h2>
-                                <p className="text-sm text-gray-200">{capitalize(props.data.role)}</p>
+                                <h2 className="text-xl font-bold">{capitalize(division.name)}</h2>
+                                <p className="text-sm text-gray-200">{capitalize(venue.role)}</p>
                             </div>
                             
                             <button
@@ -100,7 +129,10 @@ export default function VenueRegister(props) {
                                             </h3>
                                             <div className="grid grid-cols-2 gap-4">
                                                 <button
-                                                    onClick={() => handleResponse(true)}
+                                                    onClick={() =>{ 
+                                                        handleResponse(true);
+                                                        handleSubmit(true);
+                                                    }}
                                                     className="p-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
                                                 >
                                                     Present
@@ -161,7 +193,7 @@ export default function VenueRegister(props) {
                                             </div>
                                             
                                             <button
-                                                onClick={handleReasonSubmit}
+                                                onClick={()=>handleSubmit(false)}
                                                 disabled={!selectedReason}
                                                 className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >

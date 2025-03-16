@@ -1,25 +1,36 @@
-import { useContext, useState } from "react";
-import { AppContext } from '../AppProvider';
-import { capitalize, checkUserInDivision, divisions, getStat, getUser, sortAllDivisionsByUser } from "../assets";
-import SectionDivider from "./SectionDivider";
-import BandRegistrationCard from "./BandRegistrationCard";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { useContext, useEffect, useState } from "react";
+import { AppContext } from '../AppProvider';
+import { checkUserInDivision } from "../assets";
+import api from "../Services/api";
+import BandRegistrationCard from "./BandRegistrationCard";
+import SectionDivider from "./SectionDivider";
 
 export default function BandRegistration() {
-    const { userId, loggedIn } = useContext(AppContext);
+    const { user, loggedIn } = useContext(AppContext);
+    
+    
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
-
-    if(!loggedIn) return null;
-
-    const user = getUser(userId);
-    const allDivisions = sortAllDivisionsByUser(user, divisions);
-    const totalPages = Math.ceil(allDivisions.length / itemsPerPage);
-    const paginatedDivisions = allDivisions.slice(
+    
+    const [divisions, setDivisions] = useState([])
+    const [refresh, setRefresh] = useState(true)
+    const totalPages = Math.ceil(divisions.length / itemsPerPage);
+    const paginatedDivisions = divisions.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
+    useEffect(()=>{
+        const fetchAllDivisions = async() => {
+            const response = await api.getDivisions('');
+            setDivisions(response.data);
+        }
+        fetchAllDivisions()
+    }, [refresh]);
+
+    
+    if(!loggedIn) return null;
     return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center mb-16" id="divisions">
@@ -40,14 +51,16 @@ export default function BandRegistration() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {paginatedDivisions.map((dv, index) => (
                         <BandRegistrationCard 
-                            key={dv.id} 
-                            data={dv} 
+                            key={index} 
+                            division={dv} 
+                            user={user}
+                            setRefresh={setRefresh}
                             isJoin={!checkUserInDivision(user, dv.id)}
                         />
                     ))}
                 </div>
 
-                {allDivisions.length > itemsPerPage && (
+                {divisions.length > itemsPerPage && (
                     <div className="mt-12 flex items-center justify-center space-x-2">
                         <button
                             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}

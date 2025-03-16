@@ -1,6 +1,6 @@
-import { capitalize, getDateDetails, getFormattedTime } from "../assets";
-import OverlayDetails from "./OverlayDetails";
 import { ArrowRight } from "lucide-react";
+import { getDateDetails, getFormattedTime } from "../assets";
+import OverlayDetails from "./OverlayDetails";
 
 export default function Activity(props) {
     const size = props.size ?? "w-110 h-70";
@@ -9,14 +9,17 @@ export default function Activity(props) {
     return (
         <article className={`${size} ${bg} rounded-3xl relative overflow-hidden group transition-all duration-300 shadow-xl hover:shadow-2xl`}>
             {/* Image with Gradient Overlay */}
-            <div className="absolute inset-0">
-                <img 
-                    src={props.data.picture} 
-                    alt={props.data.title}
-                    className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
-            </div>
+            {
+                props.data.showPoster &&
+                    <div className="absolute inset-0">
+                        <img 
+                            src={props.data.poster} 
+                            alt={props.data.title}
+                            className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
+                    </div>
+            }
 
             {/* Content Container */}
             <div className="relative h-full flex flex-col justify-between p-6">
@@ -35,9 +38,9 @@ export default function Activity(props) {
                     {/* Date/Time Badge */}
                     <div className="bg-gray-800/80 backdrop-blur-sm px-4 py-2 rounded-full inline-block">
                         <p className="text-xs font-medium text-emerald-400">
-                            {getDateDetails(props.data.date).date2} • 
+                            {getDateDetails(props.data.venue.date).date2} • 
                             <span className="text-white ml-1">
-                                {getFormattedTime(props.data.time)}
+                                {getFormattedTime(props.data.venue.startTime)}
                             </span>
                         </p>
                     </div>
