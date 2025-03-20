@@ -21,14 +21,14 @@ function HomePage() {
           userIcon={icons.userIcon}
         />
       </nav>
-        <Hero />
+        {/* <Hero /> */}
       <div className='mx-8'>
-        <BandRegistration />
-        <PendingSchedules />
-        <ActivitiesSummary />
-        <Feedback />
+        {/* <BandRegistration />
+        <PendingSchedules /> */}
+        {/* <ActivitiesSummary /> */}
+        {/* <Feedback /> */}
       </div>
-      <StatisticalDetails />
+      {/* <StatisticalDetails /> */}
       <Contact />
     </header>
   )
