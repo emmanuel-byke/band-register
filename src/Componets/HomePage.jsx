@@ -13,7 +13,7 @@ import api from '../Services/api';
 import TestConnection from './TestConnection';
 
 function HomePage() {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(null);
 
 
   return (
@@ -38,8 +38,7 @@ function HomePage() {
           <StatisticalDetails />
           <Contact />
         </>
-      :
-        <TestConnection 
+      : <TestConnection 
           isConnected={isConnected}
           setIsConnected={setIsConnected}
         />

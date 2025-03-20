@@ -1,4 +1,4 @@
-import { Calendar, Quote, Star, Users } from "lucide-react";
+import { Calendar, MapPinned, Quote, Star, Users } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../AppProvider";
@@ -108,10 +108,10 @@ export default function Details() {
 
         {/* Venue Section */}
         {item?.showVenue && (
-          <section className="mb-24" id="upcoming-sessions">
+          <section className="mb-24" id="all-sessions">
             <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
               <Calendar className="w-8 h-8 text-emerald-400" />
-              Upcoming Sessions
+              All Sessions
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {item?.venue_data && item?.venue_data.length > 0 ? (
@@ -119,7 +119,8 @@ export default function Details() {
                   <OverlayDetails 
                     key={indx} 
                     showBtn={false} 
-                    item={(setIsOpen) => <InfoCard card={venue} setIsOpen={setIsOpen} />} 
+                    item={(setIsOpen) => 
+                      <InfoCard card={venue} setIsOpen={setIsOpen} altImage={<MapPinned className="h-32 w-32 text-[#36439B]" />} />} 
                     size="w-full"
                     title={`${getDateDetails(venue.date).dayName} ${venue.place}`}
                     desc={
@@ -138,7 +139,7 @@ export default function Details() {
               ) : (
                 <div className="rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 border 
                   border-emerald-400 text-white overflow-hidden h-30 flex justify-center items-center">
-                  <p className="text-2xl font-bold italic">No Upcoming Sessions</p>
+                  <p className="text-2xl font-bold italic">No Scheduled Sessions</p>
                 </div>
               )}
             </div>

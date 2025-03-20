@@ -91,13 +91,13 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                                     menuItems={[
                                         { 
                                             label: "Profile", 
-                                            onClick: () => handleNavigation('userprofile'),
+                                            onClick: () => handleNavigation('/userprofile'),
                                             icon: <UserIcon className="h-5 w-5 mr-2 text-gray-500" />,
                                             styles: "hover:bg-gray-50 text-gray-700"
                                         },
                                         {
                                             label: "Admin",
-                                            onClick: () => handleNavigation('admin'),
+                                            onClick: () => handleNavigation('/admin'),
                                             icon: <CogIcon className="h-5 w-5 mr-2 text-green-500" />,
                                             styles: "text-green-600 hover:bg-green-50"
                                         },
@@ -168,7 +168,7 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                             {loggedIn ? (
                                 <div className="space-y-2">
                                     <button
-                                        onClick={() => handleNavigation('userprofile')}
+                                        onClick={() => handleNavigation('/userprofile')}
                                         className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-50 rounded-md"
                                     >
                                         Profile

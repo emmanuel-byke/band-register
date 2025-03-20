@@ -11,7 +11,7 @@ export const navHeaders = [
 
 export const detailsNavHeaders = [
     {name: "Home", href: "/", loginCheck: false},
-    {name: "Upcoming", href: "#upcoming-sessions", loginCheck: true},
+    {name: "Upcoming", href: "#all-sessions", loginCheck: true},
     {name: "Mission", href: "#mission", loginCheck: false},
     {name: "Members", href: "#available-members", loginCheck: false},
     {name: "Contact Us", href: "#contact-us", loginCheck: false},

@@ -82,7 +82,7 @@ export default {
   }),
   updateActivity: (id, activity) => api.patch(`activities/${id}/`, activity),
   deleteActivity: (id) => api.delete(`activities/${id}/`),
-
+  
   getSchedules: (userId) => api.get(`divisions/user/${userId}/venues/`),
   handleScheduleResponse: (divId, formData) => api.post(`divisions/${divId}/process_venue_response/`, formData),
   // getActivity: (id) => api.get(`activities/${id}/`),
@@ -116,7 +116,7 @@ export default {
 
   getMonthlyAttendance: (formData) => api.post(`attendances/monthly_attendance/`, formData),
 
-
+  
   getFeedbacks: (search) => api.get('feedbacks/', { params: { search } }),
   getFeedback: (id) => api.get(`feedbacks/${id}/`),
   createFeedback: (feedbackyData) => api.post('feedbacks/', feedbackyData, {
@@ -127,8 +127,13 @@ export default {
   updateFeedback: (id, feedback) => api.patch(`feedbacks/${id}/`, feedback),
   deleteFeedback: (id) => api.delete(`feedbacks/${id}/`),
 
+  
 
-
+  updateUser: (id, userData) => api.patch(`accounts/users/${id}/`, userData, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    },
+  }),
   getUsers: (params) => api.get('accounts/public-users/', params),
   getUser: (id) => api.get(`accounts/public-users/${id}/`),
   userAddDiv: (userId, formData) => api.post(`accounts/users/${userId}/add_division/`, formData),
@@ -136,9 +141,9 @@ export default {
   getTopAttendee: (formData) => api.post(`accounts/users/top_attendance/`, formData),
   changeUserPermissions: (userId, formData) => api.post(`accounts/users/${userId}/permissions/`, formData),
   
-
-
-
+  
+  
+  
 
 
 

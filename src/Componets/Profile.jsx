@@ -1,24 +1,39 @@
 import { useContext, useState } from "react";
 import { AppContext } from '../AppProvider';
 import { NavLink } from "react-router-dom";
-import { Settings, User, Bell, CreditCard, Activity, Shield, Upload, Clock, Calendar, AlertCircle } from "lucide-react";
+import { Settings, User, Bell, CreditCard, Activity, Shield, Upload, Clock, Calendar, AlertCircle, Mic, MessageSquare, UserCircle } from "lucide-react";
+import api from '../Services/api'
+import useAuth from "../Services/useAuth";
+
+function jsonToFormData(json) {
+    const formData = new FormData();
+    Object.keys(json).forEach((key) => {
+        if(key !== 'profile_picture') {const value = json[key];
+            if (Array.isArray(value)) {
+                // Append each item separately with the same key
+                value.forEach(item => formData.append(key, item));
+            } else {
+                formData.append(key, value);
+            }
+        }
+    });
+    return formData;
+}
 
 export default function Profile() {
-    const { user, loggedIn } = useContext(AppContext);
-    const [isEdit, setIsEdit] = useState(true);
+    const { user, loggedIn, setUser } = useContext(AppContext);
+    const { refreshUser } = useAuth()
+    const [isSave, setIsSave] = useState(true);
     
-    const memberSince = new Date(user.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
 
     const [previewImage, setPreviewImage] = useState(null);
-
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [updatedUser, setUpdatedUser] = useState(user);
     
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if(file) {
+            setSelectedFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewImage(reader.result);
@@ -26,8 +41,24 @@ export default function Profile() {
             reader.readAsDataURL(file);
         }
     };
-    
-    console.log(user)
+
+    const handleEdit = async() => {
+        if(!isSave && updatedUser!==user) {
+            const formData = jsonToFormData(updatedUser);
+            if (selectedFile) {
+                formData.append('profile_picture', selectedFile)
+            }
+
+            try{
+                const response = await api.updateUser(updatedUser.id, formData);
+                console.log(response);
+                refreshUser();
+            } catch(error){
+                console.error(error.response?.data)
+            }
+        }
+        setIsSave(!isSave);
+    }
     
     if(!loggedIn) return null;
     return (
@@ -60,14 +91,19 @@ export default function Profile() {
                 <div className="flex items-center gap-4 ml-6">
                     <div className="text-right">
                         <p className="font-semibold text-gray-900">{user.fname} {user.lname}</p>
-                        <p className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{user.role}</p>
+                        <p className="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">{user?.is_admin? "Admin": "Member"}</p>
                     </div>
                     <div className="relative group">
-                        <img 
-                            src={user?.profile_picture} 
-                            alt="Avatar" 
-                            className="w-12 h-12 rounded-full border-2 border-indigo-100 object-cover shadow-sm hover:border-indigo-200 transition-colors"
-                        />
+                        {
+                            user?.profile_picture?
+                                <img 
+                                    src={user?.profile_picture} 
+                                    alt="Avatar" 
+                                    className="w-12 h-12 rounded-full border-2 border-indigo-100 object-cover shadow-sm hover:border-indigo-200 transition-colors"
+                                />
+                            :
+                                <UserCircle className="w-12 h-12 text-indigo-600 rounded-full transition-colors" />
+                        }
                         <div className="absolute inset-0 bg-black/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                 </div>
@@ -80,9 +116,9 @@ export default function Profile() {
                 <nav className="bg-white rounded-xl p-4 shadow-lg border border-gray-100">
                     {[
                         { icon: User, label: 'Profile', active: true },
-                        { icon: CreditCard, label: 'Billing' },
+                        { icon: Mic, label: 'My Divisions' },
+                        { icon: MessageSquare, label: 'My Feedback' },
                         { icon: Bell, label: 'Notifications' },
-                        { icon: Shield, label: 'Security' }
                     ].map((item, index) => (
                         <button 
                             key={index}
@@ -90,6 +126,7 @@ export default function Profile() {
                                 ${item.active ? 
                                     'bg-indigo-600 text-white shadow-indigo-sm' : 
                                     'text-gray-600 hover:bg-indigo-50 transition-colors'}`}
+                            
                         >
                             <item.icon className="w-5 h-5" />
                             <span className="text-sm font-medium">{item.label}</span>
@@ -101,8 +138,8 @@ export default function Profile() {
                     <div className="flex items-center gap-3">
                         <Shield className="w-5 h-5 text-indigo-600" />
                         <div>
-                            <p className="text-sm font-medium text-gray-900">Membership Tier</p>
-                            <p className="text-xs text-indigo-600 font-semibold">Premium Plan</p>
+                            <p className="text-sm font-medium text-gray-900">Hard Working Member</p>
+                            <p className="text-xs text-indigo-600 font-semibold">Keep it up</p>
                         </div>
                     </div>
                 </div>
@@ -118,13 +155,13 @@ export default function Profile() {
                             <p className="text-sm text-gray-500 mt-1">Manage your personal information</p>
                         </div>
                         <button 
-                            onClick={() => setIsEdit(!isEdit)}
+                            onClick={handleEdit}
                             className={`px-5 py-2.5 rounded-xl font-semibold transition-all transform hover:scale-[1.02]
-                                ${isEdit ? 
+                                ${isSave ? 
                                     'bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-sm' : 
                                     'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-sm'}`}
                         >
-                            {isEdit ? 'Edit Profile' : 'Save Changes'}
+                            {isSave ? 'Edit Profile' : 'Save Changes'}
                         </button>
                     </div>
 
@@ -135,7 +172,7 @@ export default function Profile() {
                                 alt="Profile" 
                                 className="w-32 h-32 rounded-full border-4 border-indigo-100 object-cover shadow-lg hover:border-indigo-200 transition-colors"
                             />
-                            {!isEdit && (
+                            {!isSave && (
                                 <label className="absolute bottom-0 right-0 bg-white p-2 rounded-full cursor-pointer shadow-lg hover:shadow-xl transition-all">
                                     <Upload className="w-5 h-5 text-indigo-600" />
                                     <input
@@ -155,18 +192,20 @@ export default function Profile() {
                                 <label className="text-sm font-medium text-gray-700">First Name</label>
                                 <input
                                     type="text"
-                                    defaultValue={user.fname}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
-                                    disabled={isEdit}
+                                    disabled={isSave}
+                                    value={updatedUser.fname}
+                                    onChange={(e)=>setUpdatedUser({...updatedUser, fname: e.target.value})}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-700">Last Name</label>
                                 <input
                                     type="text"
-                                    defaultValue={user.lname}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
-                                    disabled={isEdit}
+                                    disabled={isSave}
+                                    value={updatedUser.lname}
+                                    onChange={(e)=>setUpdatedUser({...updatedUser, lname: e.target.value})}
                                 />
                             </div>
                         </div>
@@ -176,17 +215,19 @@ export default function Profile() {
                                 <label className="text-sm font-medium text-gray-700">Username</label>
                                 <input
                                     type="text"
-                                    defaultValue={user.username}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
-                                    disabled={isEdit}
+                                    disabled={isSave}
+                                    value={updatedUser.username}
+                                    onChange={(e)=>setUpdatedUser({...updatedUser, username: e.target.value})}
                                 />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-700">Gender</label>
                                 <select
-                                    defaultValue={user.gender}
                                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 appearance-none bg-select-arrow bg-no-repeat bg-[length:20px] bg-[right_1rem_center]"
-                                    disabled={isEdit}
+                                    disabled={isSave}
+                                    value={updatedUser.gender}
+                                    onChange={(e)=>setUpdatedUser({...updatedUser, gender: e.target.value})}
                                 >
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -199,9 +240,10 @@ export default function Profile() {
                             <label className="text-sm font-medium text-gray-700">Contact Number</label>
                             <input
                                 type="tel"
-                                defaultValue={user.phone_number}
                                 className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all"
-                                disabled={isEdit}
+                                disabled={isSave}
+                                value={updatedUser.phone_number}
+                                onChange={(e)=>setUpdatedUser({...updatedUser, phone_number: e.target.value})}
                             />
                         </div>
                     </div>
