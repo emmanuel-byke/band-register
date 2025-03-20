@@ -5,7 +5,7 @@ import ChooserCard from "./ChooserCard";
 
 
 export default function ImageChooser() {
-    const{ currentInstr, setCurrentInstr, user } = useContext(AppContext)
+    const{ currentInstr, setCurrentInstr, setRenderedInstr, user } = useContext(AppContext)
 
     return (
     <header className="max-w-6xl mx-auto p-6 space-y-8">
@@ -15,8 +15,8 @@ export default function ImageChooser() {
             {currentInstr ? (
                 <NavLink 
                     to={`/instrument/detail/${currentInstr.id}`} 
-                    state={currentInstr}
                     className="block h-full w-full"
+                    onClick={()=>setRenderedInstr(currentInstr)}
                 >
                     <img
                         src={currentInstr.value}

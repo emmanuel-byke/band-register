@@ -3,6 +3,8 @@ import { NavLink } from "react-router-dom";
 import api from "../Services/api";
 import useAuth from "../Services/useAuth";
 import OverlayDetails from "./OverlayDetails";
+import { useContext } from "react";
+import { AppContext } from "../AppProvider";
 
 
 export default function BandRegistrationCard({ division, user, isJoin, setRefresh }) {
@@ -11,6 +13,7 @@ export default function BandRegistrationCard({ division, user, isJoin, setRefres
     const textColor = isJoin ? "text-black" : "text-red-500";
     const bgColor = isJoin ? "hover:bg-green-500" : "hover:bg-red-500";
     const { refreshUser } = useAuth();
+    const { setRenderedInstr } = useContext(AppContext);
 
     const handleJoin = async(e) => {
         try{
@@ -30,7 +33,8 @@ export default function BandRegistrationCard({ division, user, isJoin, setRefres
                 <NavLink 
                     to={`/instrument/detail/${division.id}`} 
                     className="absolute top-0 left-0 w-full h-full"
-                    state={division}> 
+                    onClick={()=>setRenderedInstr(division)}
+                    > 
                         <button className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 m-2 p-2 bg-blue-500 hover:bg-green-500
                                 text-white font-montserrat font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300
                                 cursor-pointer z-10`}>

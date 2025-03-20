@@ -8,29 +8,46 @@ import StatisticalDetails from './StatisticalDetails';
 import Contact from './Contact';
 import { navHeaders } from "../assets/constants";
 import { icons } from "../assets/index";
+import { useEffect, useState } from 'react';
+import api from '../Services/api';
+import TestConnection from './TestConnection';
 
 function HomePage() {
+  const [isConnected, setIsConnected] = useState(false);
+
+
   return (
-    <header>
+    <div>
 
-
-      <nav>
-        <Navbar 
-          navHeaders={ navHeaders }
-          mainIcon={icons.mainIcon}
-          userIcon={icons.userIcon}
+      {isConnected ? 
+        <>
+          <nav>
+            <Navbar 
+              navHeaders={ navHeaders }
+              mainIcon={icons.mainIcon}
+              userIcon={icons.userIcon}
+            />
+          </nav>
+            <Hero />
+          <div className='mx-8'>
+            <BandRegistration />
+            <PendingSchedules />
+            <ActivitiesSummary />
+            <Feedback />
+          </div>
+          <StatisticalDetails />
+          <Contact />
+        </>
+      :
+        <TestConnection 
+          isConnected={isConnected}
+          setIsConnected={setIsConnected}
         />
-      </nav>
-        <Hero />
-      <div className='mx-8'>
-        <BandRegistration />
-        <PendingSchedules />
-        <ActivitiesSummary />
-        <Feedback />
-      </div>
-      {/* <StatisticalDetails /> */}
-      <Contact />
-    </header>
+      }
+
+      
+
+    </div>
   )
 }
 

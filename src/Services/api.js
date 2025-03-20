@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // baseURL: 'http://localhost:8000/',
-  baseURL: 'https://band-register-drf.onrender.com/',
+  baseURL: 'http://localhost:8000/',
+  // baseURL: 'https://band-register-drf.onrender.com/',
   withCredentials: true,
 });
 
@@ -71,6 +71,8 @@ api.interceptors.response.use(
 
 
 export default {
+  test_connection: ()=>api.get('test-connection/'),
+
   getActivities: (search) => api.get('activities/', { params: { search } }),
   getActivity: (id) => api.get(`activities/${id}/`),
   createActivity: (activityData) => api.post('activities/', activityData, {

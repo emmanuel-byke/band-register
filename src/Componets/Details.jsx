@@ -19,8 +19,8 @@ export default function Details() {
   const { id } = useParams();
   const divisionId = parseInt(id, 10);
 
-  const {currentInstr} = useContext(AppContext);
-  const item = currentInstr;
+  const {renderedInstr} = useContext(AppContext);
+  const item = renderedInstr;
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,7 +48,7 @@ export default function Details() {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950">
       <Navbar 
         navHeaders={detailsNavHeaders}
-        mainIcon={{ name: item.name, value: item.value, href: "/" }}
+        mainIcon={{ name: item?.name, value: item?.value, href: "/" }}
         userIcon={icons.userIcon}
         bgColor="bg-gradient-to-r from-slate-900 to-slate-100"
         fontColor="text-white hover:text-gray-300"
@@ -59,8 +59,8 @@ export default function Details() {
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           <div className="relative group overflow-hidden rounded-3xl shadow-2xl">
             <img 
-              src={item.value}
-              alt={item.name}
+              src={item?.value}
+              alt={item?.name}
               className="w-full h-full object-contain aspect-square transform transition-transform duration-300 
                 group-hover:scale-105"
             />
@@ -68,18 +68,18 @@ export default function Details() {
           
           <div className="space-y-6">
             <h1 className="text-5xl font-bold text-white font-montserrat flex flex-row flex-wrap items-center gap-x-6">
-              {item.name} 
-              <span className="text-emerald-400 block mt-2"> {item.role}</span>
+              {item?.name} 
+              <span className="text-emerald-400 block mt-2"> {item?.role}</span>
             </h1>
             
-            {item.showRatings && (
+            {item?.showRatings && (
               <div className="flex items-center gap-4 bg-gray-800/50 p-6 rounded-xl">
                 <div className="flex items-center gap-2">
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
                       className={`w-8 h-8 ${
-                        i < item.average_rating 
+                        i < item?.average_rating 
                           ? "fill-emerald-400 stroke-emerald-400" 
                           : "stroke-gray-600"
                       }`}
@@ -88,7 +88,7 @@ export default function Details() {
                 </div>
                 <div className="space-y-1">
                   <p className="text-2xl font-bold text-white">
-                    {item.average_rating}/5
+                    {item?.average_rating}/5
                   </p>
                   <button className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2">
                     <Star className="w-5 h-5" />
@@ -98,24 +98,24 @@ export default function Details() {
               </div>
             )}
             
-            {item.shortWords && (
+            {item?.shortWords && (
               <blockquote className="text-2xl text-emerald-300 italic border-l-4 border-emerald-400 pl-4">
-                "{item.shortWords}"
+                "{item?.shortWords}"
               </blockquote>
             )}
           </div>
         </div>
 
         {/* Venue Section */}
-        {item.showVenue && (
+        {item?.showVenue && (
           <section className="mb-24" id="upcoming-sessions">
             <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
               <Calendar className="w-8 h-8 text-emerald-400" />
               Upcoming Sessions
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {item.venue_data && item.venue_data.length > 0 ? (
-                item.venue_data.map((venue, indx) => (
+              {item?.venue_data && item?.venue_data.length > 0 ? (
+                item?.venue_data.map((venue, indx) => (
                   <OverlayDetails 
                     key={indx} 
                     showBtn={false} 
@@ -150,15 +150,15 @@ export default function Details() {
           <div className="max-w-3xl text-center space-y-8">
             <h2 className="text-3xl font-bold text-white flex items-center justify-center gap-3">
               <Quote className="w-8 h-8 text-emerald-400" />
-              {item.title}
+              {item?.title}
             </h2>
             <div className="space-y-6">
               <p className="text-xl text-gray-300 leading-relaxed">
-                {item.titleDesc}
+                {item?.titleDesc}
               </p>
-              {item.titleQuote && (
+              {item?.titleQuote && (
                 <p className="text-2xl text-emerald-300 italic">
-                  "{item.titleQuote}"
+                  "{item?.titleQuote}"
                 </p>
               )}
             </div>
@@ -166,14 +166,14 @@ export default function Details() {
         </section>
 
         {/* Members Section */}
-        {item.showUser && members.length > 0 && (
+        {item?.showUser && members.length > 0 && (
           <section className="mb-16" id="available-members">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
               <h2 className="text-3xl font-bold text-white flex items-center gap-3">
                 <Users className="w-8 h-8 text-emerald-400" />
-                {item.baseUserModifier} 
+                {item?.baseUserModifier} 
                 <span className="text-emerald-400">
-                  {item.baseUser}
+                  {item?.baseUser}
                   {members.length === 1 ? "" : "s"} 
                   <span className="text-gray-400 text-xl ml-2">
                     ({members.length} total)
@@ -184,7 +184,7 @@ export default function Details() {
             
             <AllUsers 
               users={paginatedMembers} 
-              baseName={item.baseUser} 
+              baseName={item?.baseUser} 
               divId={divisionId} 
               className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
             />

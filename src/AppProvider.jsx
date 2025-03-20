@@ -6,6 +6,11 @@ export const AppProvider = ({children}) => {
         const savedValue = localStorage.getItem('instruments-data-123-321-123-variable-bykes');
         return savedValue !== null ? JSON.parse(savedValue) : null;
     });
+    
+    const [renderedInstr, setRenderedInstr] = useState(() => {
+        const savedValue = localStorage.getItem('rendered-instrument-data-123-321-123-variable-bykes-Hello_1');
+        return savedValue !== null ? JSON.parse(savedValue) : null;
+    });
 
     const [loggedIn, setLoggedIn] = useState(() => {
         const savedValue = localStorage.getItem('logged-in-data-123-321-123-variable-bykes');
@@ -29,6 +34,10 @@ export const AppProvider = ({children}) => {
     }, [currentInstr]);
 
     useEffect(() => {
+        localStorage.setItem('rendered-instrument-data-123-321-123-variable-bykes-Hello_1', JSON.stringify(renderedInstr));
+    }, [renderedInstr]);
+
+    useEffect(() => {
         localStorage.setItem('logged-in-data-123-321-123-variable-bykes', JSON.stringify(loggedIn));
         if(!loggedIn) {
             setUserId(null);
@@ -46,7 +55,7 @@ export const AppProvider = ({children}) => {
     }, [user]);
 
     return <AppContext.Provider value={{currentInstr, setCurrentInstr, loggedIn, setLoggedIn, userId, setUserId, user, setUser,
-        userChanged, setUserChanged
+        userChanged, setUserChanged, renderedInstr, setRenderedInstr
     }}>
         {children}
     </AppContext.Provider>
