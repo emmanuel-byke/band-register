@@ -209,7 +209,8 @@ export default function AdminSite() {
         const endDate = '2025-03-14';
         const response = await api.getDivisionsDetails({startDate, endDate, divId});
         // getTopAbsenceReason(users, {start: '2025-03-01', end: '2025-03-14'})
-        setTopAbsentReason(response.data.stats.top_absence_reason)
+        setTopAbsentReason(response.data.stats.top_absence_reason||"")
+        console.log(response.data);
       } catch(error) {
         console.error(error?.response?.data);
       }

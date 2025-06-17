@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  // baseURL: 'http://localhost:8000/',
-  baseURL: 'https://band-register-drf.onrender.com/',
+  baseURL: 'http://localhost:8000/',
+  // baseURL: 'https://band-register-drf.onrender.com/',
   withCredentials: true,
 });
 
@@ -138,7 +138,7 @@ export default {
   getUser: (id) => api.get(`accounts/public-users/${id}/`),
   userAddDiv: (userId, formData) => api.post(`accounts/users/${userId}/add_division/`, formData),
   userRemoveDiv: (userId, formData) => api.post(`accounts/users/${userId}/remove_division/`, formData),
-  getTopAttendee: (formData) => api.post(`accounts/users/top_attendance/`, formData),
+  getTopAttendee: (formData) => api.get(`accounts/users/top_attendance/`, formData),
   changeUserPermissions: (userId, formData) => api.post(`accounts/users/${userId}/permissions/`, formData),
   
   

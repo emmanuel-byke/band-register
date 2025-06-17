@@ -14,6 +14,7 @@
     "@heroicons/react": "^2.2.0",
     "@tailwindcss/vite": "^4.0.6",
     "axios": "^1.8.1",
+    "axios-cache-interceptor": "^1.8.0",
     "chroma-js": "^3.1.2",
     "colorthief": "^2.6.0",
     "lucide-react": "^0.475.0",

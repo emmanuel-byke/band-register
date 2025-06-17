@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthForm from "./Componets/AuthForm";
 import Profile from "./Componets/Profile";
 import AdminSite from "./Componets/AdminSite";
-
+import RevealText from "./features/auth/components/Test";
 
 
 
@@ -17,6 +17,7 @@ function App() {
   return (
       <Router>
         <Routes>
+          {/* <Route path='/' element={<RevealText />} /> */}
           <Route path='/' element={<HomePage />} />
           <Route path='/instrument/detail/:id' Component={Details} />
           <Route path='/auth' Component={AuthForm} />
