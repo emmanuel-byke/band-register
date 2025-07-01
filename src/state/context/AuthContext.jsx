@@ -56,6 +56,7 @@ export default function AuthProvider({ children }) {
 
   const testConnection = async () => {
     const response = await testConnectionAPI();
+    console.log(response);
     return response;
   };
 

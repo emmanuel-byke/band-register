@@ -6,7 +6,8 @@ import { setupCache } from 'axios-cache-interceptor';
 //                 (import.meta.env.NODE_ENV === 'production' 
 //                   ? 'https://band-register-drf.onrender.com/' 
 //                   : 'http://localhost:8000/');
-const BASE_URL = 'https://band-register-drf.onrender.com/'
+
+const BASE_URL = 'https://band-register-drf.onrender.com/';
 
 const instance = axios.create({
   baseURL: BASE_URL,
