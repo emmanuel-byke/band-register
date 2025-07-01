@@ -116,7 +116,8 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                                             icon: <LogOut className="h-5 w-5 mr-2 text-red-500" />,
                                             styles: "text-red-600 hover:bg-red-50"
                                         },
-                                    ].filter(item=>item.label==='Admin'?user.is_admin:true)}
+                                    ]}
+                                    // ].filter(item=>item.label==='Admin'?user.is_admin:true)}
                                 />
                             </div>
                         ) : (
