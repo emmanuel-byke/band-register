@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ArrowRight } from 'lucide-react';
 import { useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth, useUser } from "../../../state/hooks/ContextUser";
@@ -8,13 +8,15 @@ import { loginBackgroundImage1 } from "../../../utilities/constants";
 import { HighlightedText } from "../../reusable/Text";
 import { LineInput } from "../../reusable/Inputs";
 import { SpinnerBtn } from "../../reusable/Buttons";
+import { AppContext } from "../../../AppProvider";
+import api from "../../../Services/api";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(useLocation()?.state?.isLogin ?? true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const { login, signup } = useAuth();
+  // const { login, signup } = useAuth();
   
   const [formData, setFormData] = useState(cleanAuthForm());
   const [errors, setErrors] = useState(cleanAuthForm());
@@ -48,7 +50,7 @@ export default function AuthForm() {
     }
 
     try {
-      isLogin ? await login(formData) : await signup(formData);
+      isLogin ? await api.login(formData) : await api.signup(formData);
       navigate('/');
       setFormData(cleanAuthForm());
     } catch (error) {
