@@ -96,6 +96,10 @@ export default {
   
   getAllPendingSchedules: (params) => api.get(`pending-requests/venues/`, params),
 
+
+
+
+  
   getDivisions: (search) => api.get('divisions/', { params: { search } }),
   getDivisionsByUser: (userId, formData) => api.post(`divisions/users/${userId}/all/`, formData),
   getDivisionsDetails: (formData) => api.post(`divisions/get_all_users_divisions_details/`, formData),

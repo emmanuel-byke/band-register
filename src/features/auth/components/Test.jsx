@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../../state/hooks/UseAuth';
-import { useUser } from '../../../state/hooks/UseUser';
+import { useAuth } from '../../../state/hooks/ContextUser';
+import { useUser } from '../../../state/hooks/ContextUser';
 
 
 export default function RevealText() {
@@ -8,7 +8,7 @@ export default function RevealText() {
   const [text, setText] = useState("🌟 Hello there! You've just revealed this magical text.")
 
   const { testConnection } = useAuth();
-  const { getUsers } = useUser();
+  const { getUsers, userRemoveDiv } = useUser();
 
   useEffect(()=>{
     async function initializeAuth() {
@@ -18,6 +18,9 @@ export default function RevealText() {
 
       const resp2 = await getUsers();
       console.log(resp2.data);
+
+      const resp3 = await userRemoveDiv(1, {division_id:1});
+      console.log(resp3);
     }
     initializeAuth();
   }, []);

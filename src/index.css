@@ -13,6 +13,7 @@
 
 
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-grechen: "Grechen Fuemen", sans-serif;
@@ -28,16 +29,41 @@
   --font-open-sans: "Open Sans", sans-serif;
 
 
-  --color-gray: #99a1af;
-  --color-primary: #030014;
-
-
   --font-dm-sans: DM Sans, sans-serif;
 
   --breakpoint-xs: 480px;
 
   --background-image-hero-pattern: url("/hero-bg.png");
 }
+
+:root {
+  --color-background: #e5e5e5;
+  --color-neutral: #ffffff;
+  --color-primary: #000000;
+  --color-secondary: #ef233c;
+
+  --color-red: #ef233c;
+  --color-green: #00a97f;
+
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark {
+  --color-background: #353442;
+  --color-neutral: #202020;
+  --color-primary: #c1c1c1;
+  --color-secondary: #00a97f;
+
+  --color-red: #ef233c;
+  --color-green: #00a97f;
+}
+
+html {
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 
 @layer base {
   body {

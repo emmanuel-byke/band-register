@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { changeUserPermissionsAPI, getCurrentUserAPI, getUserAPI, getUsersAPI, updateUserAPI, userAddDivAPI, userRemoveDivAPI } from '../../api/Users/usersAPI';
+import { changeUserPermissionsAPI, getCurrentUserAPI, getTopAttendeeAPI, getUserAPI, getUsersAPI, 
+  updateUserAPI, userAddDivAPI, userRemoveDivAPI } from '../../api/endpoints/usersAPI';
 
 export const UserContext = createContext(null);
 
@@ -49,8 +50,8 @@ export default function UserProvider({ children }) {
     return response;
   };
   const getTopAttendee = async (formData) => {
-    // const response = await getTopAttendeeAPI(formData);
-    // return response;
+    const response = await getTopAttendeeAPI(formData);
+    return response;
   };
   const changeUserPermissions = async (userID, formData) => {
     const response = await changeUserPermissionsAPI(userID, formData);
@@ -60,7 +61,8 @@ export default function UserProvider({ children }) {
   
   return (
     <UserContext.Provider
-        value={{ user, loading, refreshUser, updateUser, getUsers, getUser, userAddDiv, userRemoveDiv, getTopAttendee,changeUserPermissions
+        value={{ user, setUser, loading, refreshUser, setRefreshUser, updateUser, getUsers, getUser, 
+          userAddDiv, userRemoveDiv, getTopAttendee,changeUserPermissions
       }}
     >
       {children}
