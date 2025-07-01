@@ -12,10 +12,11 @@ export const AppProvider = ({children}) => {
         return savedValue !== null ? JSON.parse(savedValue) : null;
     });
 
-    const [loggedIn, setLoggedIn] = useState(() => {
-        const savedValue = localStorage.getItem('logged-in-data-123-321-123-variable-bykes');
-        return savedValue !== null ? JSON.parse(savedValue) : false;
-    });
+    // const [loggedIn, setLoggedIn] = useState(() => {
+    //     const savedValue = localStorage.getItem('logged-in-data-123-321-123-variable-bykes');
+    //     return savedValue !== null ? JSON.parse(savedValue) : true;
+    // });
+    const [loggedIn, setLoggedIn] = useState(true);
 
     const [userId, setUserId] = useState(() => {
         const savedValue = localStorage.getItem('logged-in-data-id-123-321-123-variable-bykes');
