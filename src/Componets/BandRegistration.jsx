@@ -5,9 +5,10 @@ import { checkUserInDivision } from "../assets";
 import api from "../Services/api";
 import BandRegistrationCard from "./BandRegistrationCard";
 import SectionDivider from "./SectionDivider";
+import { UserContext } from "../state/context/UserContext";
 
 export default function BandRegistration() {
-    const { user, loggedIn } = useContext(AppContext);
+    const { user } = useContext(UserContext);
     
     
     const [currentPage, setCurrentPage] = useState(1);
@@ -30,7 +31,7 @@ export default function BandRegistration() {
     }, [refresh]);
 
     
-    if(!loggedIn) return null;
+    if(!user) return null;
     return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center mb-16" id="divisions">
