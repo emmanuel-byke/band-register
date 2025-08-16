@@ -14,6 +14,7 @@ import Contact from "./Contact";
 import InfoCard from "./InfoCard";
 import Navbar from "./Navbar";
 import OverlayDetails from "./OverlayDetails";
+import { useDivision, useUser } from "../state/hooks/ContextUser";
 
 export default function Details() {
   const { id } = useParams();
@@ -21,6 +22,10 @@ export default function Details() {
 
   const {renderedInstr} = useContext(AppContext);
   const item = renderedInstr;
+  const [filledStars, setFilledStars] = useState(0);
+  const { getDivisionRatings, getUserDivisionRatings, rateDivision } = useDivision();
+  const [ratings, setRatings] = useState({avg: 0, user: 0});
+  const { user } = useUser();
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,6 +48,29 @@ export default function Details() {
     };
     fetchMembers();
   }, [divisionId]);
+
+  useEffect(() => {
+    const fetchRatings = async () => {
+      try {
+        const divRatingsresponse = await getDivisionRatings(divisionId);
+        const userRatingsresponse = await getUserDivisionRatings();
+        setRatings({ avg: divRatingsresponse.data, user: userRatingsresponse.data });
+        console.log("Ratings:", divRatingsresponse.data, userRatingsresponse.data);
+      } catch (error) {
+        console.error(error?.response?.data);
+      }
+    };
+    fetchRatings();
+  }, [divisionId]);
+
+  const rateInstrument = async (rating) => {
+    setFilledStars(rating);
+    try {
+      await rateDivision({ division: item.id, value: rating });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-950">
@@ -79,21 +107,18 @@ export default function Details() {
                     <Star
                       key={i}
                       className={`w-8 h-8 ${
-                        i < item?.average_rating 
+                        i < filledStars
                           ? "fill-emerald-400 stroke-emerald-400" 
                           : "stroke-gray-600"
                       }`}
+                      onClick={() => rateInstrument(i + 1)}
                     />
                   ))}
                 </div>
                 <div className="space-y-1">
                   <p className="text-2xl font-bold text-white">
-                    {item?.average_rating}/5
+                    {filledStars}/5
                   </p>
-                  <button className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2">
-                    <Star className="w-5 h-5" />
-                    Rate Now
-                  </button>
                 </div>
               </div>
             )}

@@ -7,15 +7,15 @@ export const validateAuthForm = (isLogin, formData) => {
   } else {
     if (!formData.fname.trim()) errors.fname = 'First name is required';
     if (!formData.lname.trim()) errors.lname = 'Last name is required';
-    if (!formData.username.trim()) {
-      errors.username = 'Username is required';
-    } else if (/\s/.test(formData.username)) {
-      errors.username = 'Username cannot contain spaces';
+    if (!formData.newUsername.trim()) {
+      errors.newUsername = 'Username is required';
+    } else if (/\s/.test(formData.newUsername)) {
+      errors.newUsername = 'Username cannot contain spaces';
     }
-    if (!formData.password.trim()) {
-      errors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+    if (!formData.newPassword.trim()) {
+      errors.newPassword = 'Password is required';
+    } else if (formData.newPassword.length < 6) {
+      errors.newPassword = 'Password must be at least 6 characters';
     }
     if (!formData.phone_number.trim()) {
       errors.phone_number = 'Phone number is required';
@@ -28,8 +28,10 @@ export const validateAuthForm = (isLogin, formData) => {
 
 export const cleanAuthForm = () => ({
   username: '',
+  newUsername: '',
   fname: '',
   lname: '',
   password: '',
+  newPassword: '',
   phone_number: ''
 });

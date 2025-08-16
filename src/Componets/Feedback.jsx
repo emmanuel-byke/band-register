@@ -1,11 +1,12 @@
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from '../AppProvider';
+import { useEffect, useState } from "react";
 import { capitalize } from "../assets";
 import api from "../Services/api";
+import { useUser } from "../state/hooks/ContextUser";
 import SectionDivider from "./SectionDivider";
 
 export default function Feedback() {
-  const{ user, loggedIn } = useContext(AppContext);
+  const { user } = useUser();
+  const loggedIn = !!user;
   const [feedback, setFeedback] = useState([]);
 
   useEffect(()=>{
@@ -22,7 +23,7 @@ export default function Feedback() {
   }, []);
 
 
-  if(!loggedIn) return <></>
+  if(!loggedIn || feedback.length === 0) return null;
   return (
     <main className="flex flex-col flex-wrap justify-center items-center">
       <div className="mt-40">

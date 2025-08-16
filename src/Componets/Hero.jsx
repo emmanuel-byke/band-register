@@ -1,10 +1,12 @@
-import { useContext } from "react";
-import { AppContext } from '../AppProvider';
+import { useUser } from "../state/hooks/ContextUser";
 import ImageChooser from "./ImageChooser";
 
 
 export default function Hero() {
-    const{ loggedIn } = useContext(AppContext)
+    const { user } = useUser();
+    const loggedIn = !!user;
+
+    console.log(user)
 
     return(
         <header className="w-full bg-gradient-to-br from-sky-50 to-blue-50 py-16 md:py-24" id="home">

@@ -5,14 +5,15 @@ import useAuth from "../Services/useAuth";
 import OverlayDetails from "./OverlayDetails";
 import { useContext } from "react";
 import { AppContext } from "../AppProvider";
+import { useUser } from "../state/hooks/ContextUser";
 
 
 export default function BandRegistrationCard({ division, user, isJoin, setRefresh }) {
     const totalStars = 5;
-    const filledStars = division.average_rating??1
+    const filledStars = division.average_rating??3;
     const textColor = isJoin ? "text-black" : "text-red-500";
     const bgColor = isJoin ? "hover:bg-green-500" : "hover:bg-red-500";
-    const { refreshUser } = useAuth();
+    const { refreshUser } = useUser();
     const { setRenderedInstr } = useContext(AppContext);
 
     const handleJoin = async(e) => {

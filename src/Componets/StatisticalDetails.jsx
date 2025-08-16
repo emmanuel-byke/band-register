@@ -1,14 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { AppContext } from '../AppProvider';
 import { absentCal, addDateDesc, capitalize, combineByDateDesc, getDateDetails, getDateRange, timeDiff } from "../assets";
 import api from '../Services/api';
+import { useUser } from '../state/hooks/ContextUser';
 import SectionDivider from './SectionDivider';
 
 export default function StatisticalDetails() {
-  const{ user, loggedIn, userChanged } = useContext(AppContext)
+  // const{ user, loggedIn, userChanged } = useContext(AppContext)
+  const { user, userUpdator } = useUser();
+  const loggedIn = !!user;
 
   const [allDivisions, setAllDivisions] = useState([]);
   const [currentDiv, setCurrentDiv] = useState(allDivisions?.length>0&&user?.divisions?user.divisions[0].id:null);
@@ -43,7 +45,7 @@ export default function StatisticalDetails() {
       }
     }
     loggedIn && fetchDivisions();
-  }, [user, userChanged, currentDiv, startDate, endDate])
+  }, [user, userUpdator, currentDiv, startDate, endDate])
 
 
   
@@ -98,8 +100,9 @@ export default function StatisticalDetails() {
     if (percentage >= 60) return `bg-yellow-500/30`;
     return `bg-red-500/${100-percentage}`;
   };
-
-  if(!loggedIn) return null;
+  
+  console.log(stats.length)
+  if(!loggedIn || stats.length === 0) return null;
   return (
     <div className="min-h-screen bg-gray-50 p-8 font-inter-tight">
       <div className="my-30 " id="statistics">

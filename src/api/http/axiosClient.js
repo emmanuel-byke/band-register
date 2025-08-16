@@ -1,21 +1,14 @@
 import axios from 'axios';
 import Cookies from "js-cookie";
-import { setupCache } from 'axios-cache-interceptor';
 
-// const BASE_URL = import.meta.env.VITE_API_BASE_URL || 
-//                 (import.meta.env.NODE_ENV === 'production' 
-//                   ? 'https://band-register-drf.onrender.com/' 
-//                   : 'http://localhost:8000/');
+const BASE_URL = 'http://localhost:8000/';
+// const BASE_URL = 'https://band-register-drf.onrender.com/';
 
-const BASE_URL = 'https://band-register-drf.onrender.com/';
-
-const instance = axios.create({
+const apiClient = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
 
-// const apiClient = setupCache(instance);
-const apiClient = instance;
 
 let csrfToken = '';
 let tokenFetchPromise = null;

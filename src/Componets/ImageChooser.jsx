@@ -2,10 +2,12 @@ import { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { AppContext } from '../AppProvider';
 import ChooserCard from "./ChooserCard";
+import { useUser } from "../state/hooks/ContextUser";
 
 
 export default function ImageChooser() {
-    const{ currentInstr, setCurrentInstr, setRenderedInstr, user } = useContext(AppContext)
+    const { user } = useUser();
+    const{ currentInstr, setCurrentInstr, setRenderedInstr } = useContext(AppContext)
 
     return (
     <header className="max-w-6xl mx-auto p-6 space-y-8">
@@ -46,8 +48,20 @@ export default function ImageChooser() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                     </svg>
                     <h2 className="text-3xl font-semibold text-gray-600 text-center font-lora">
-                        Select Your Instrument <br/>
-                        <span className="text-lg text-gray-500 font-montserrat">Choose from your available options below</span>
+                        {
+                            user.divisions.length>0? 
+                                "Select Any Available Division"
+                            :
+                                "Add Band Division"
+                        } <br/>
+                        <span className="text-lg text-gray-500 font-montserrat">
+                            {
+                                user.divisions.length > 0 ?
+                                    "Choose from your available options below"
+                                    :
+                                    "Explore and register a new band division to get started"
+                            }
+                        </span>
                     </h2>
                 </div>
             )}

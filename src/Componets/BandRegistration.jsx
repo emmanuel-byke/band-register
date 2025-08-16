@@ -1,13 +1,14 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from '../AppProvider';
+import { useEffect, useState } from "react";
 import { checkUserInDivision } from "../assets";
 import api from "../Services/api";
+import { useUser } from "../state/hooks/ContextUser";
 import BandRegistrationCard from "./BandRegistrationCard";
 import SectionDivider from "./SectionDivider";
 
 export default function BandRegistration() {
-    const { user, loggedIn } = useContext(AppContext);
+    const { user } = useUser();
+    const loggedIn = !!user;
     
     
     const [currentPage, setCurrentPage] = useState(1);
@@ -30,7 +31,7 @@ export default function BandRegistration() {
     }, [refresh]);
 
     
-    if(!loggedIn) return null;
+    if(!loggedIn || divisions.length === 0) return null;
     return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center mb-16" id="divisions">

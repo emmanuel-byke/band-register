@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { createDivisionAPI, deletedivisionAPI, divUsersAPI, getAllDivVenuesAPI, getAllUpcommingDivVenuesAPI, 
-    getDivisionAPI, getDivisionsAPI, getDivisionsByUserAPI, getDivisionsDetailsAPI, updatedivisionAPI 
+    getDivisionAPI, getDivisionRatingsAPI, getDivisionsAPI, getDivisionsByUserAPI, getDivisionsDetailsAPI, getUserDivisionRatingsAPI, rateDivisionAPI, updatedivisionAPI 
 } from '../../api/endpoints/divisionAPI';
 
 
@@ -50,10 +50,24 @@ export default function DivisionProvider({ children }) {
     return response;
   };
 
+  const getDivisionRatings = async (divId) => {
+    const response = await getDivisionRatingsAPI(divId);
+    return response;
+  };
+  const getUserDivisionRatings = async () => {
+    const response = await getUserDivisionRatingsAPI();
+    return response;
+  };
+  const rateDivision = async (params) => {
+    const response = await rateDivisionAPI(params);
+    return response;
+  };
+
   
   return (
     < DivisionContext.Provider value={{ getDivision, getDivisions, getDivisionsByUser, getDivisionsDetails,
-        createDivision, updateDivision, deleteDivision, divUsers, getAllDivVenues, getAllUpcommingDivVenues
+        createDivision, updateDivision, deleteDivision, divUsers, getAllDivVenues, getAllUpcommingDivVenues, 
+        getDivisionRatings, getUserDivisionRatings, rateDivision
      }} >
       {children}
     </DivisionContext.Provider>

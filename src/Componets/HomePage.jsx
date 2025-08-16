@@ -1,15 +1,14 @@
-import Navbar from './Navbar';
-import Hero from './Hero';
-import PendingSchedules from './PendingSchedules';
-import ActivitiesSummary from './ActivitiesSummary';
-import Feedback from './Feedback';
-import BandRegistration from './BandRegistration';
-import StatisticalDetails from './StatisticalDetails';
-import Contact from './Contact';
+import { useState } from 'react';
 import { navHeaders } from "../assets/constants";
 import { icons } from "../assets/index";
-import { useEffect, useState } from 'react';
-import api from '../Services/api';
+import ActivitiesSummary from './ActivitiesSummary';
+import BandRegistration from './BandRegistration';
+import Contact from './Contact';
+import Feedback from './Feedback';
+import Hero from './Hero';
+import Navbar from './Navbar';
+import PendingSchedules from './PendingSchedules';
+import StatisticalDetails from './StatisticalDetails';
 import TestConnection from './TestConnection';
 
 function HomePage() {

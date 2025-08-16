@@ -1,8 +1,8 @@
 import { MapPinned } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from '../AppProvider';
+import { useEffect, useState } from "react";
 import { getDateDetails, getFormattedTime } from "../assets";
 import api from "../Services/api";
+import { useUser } from "../state/hooks/ContextUser";
 import InfoCard from "./InfoCard";
 import NoRecordsCard from "./NoRecord";
 import OverlayDetails from "./OverlayDetails";
@@ -11,7 +11,8 @@ import SectionDivider from "./SectionDivider";
 import VenueRegister from "./VenueRegister";
 
 export default function PendingSchedules() {
-    const { user, userChanged, loggedIn } = useContext(AppContext);
+    const { user, userUpdator } = useUser();
+    const loggedIn = !!user;
     const [ scheduleChanged, setScheduleChanged ] = useState(false);
     const [ pendingSchedule, setPendingSchedule ] = useState([]);
     const [ unregisteredSchedule, setUnregisteredSchedule ] = useState([]);
@@ -36,7 +37,7 @@ export default function PendingSchedules() {
             }
         }
         loggedIn && fetchPendingSchedules();
-    }, [userChanged, scheduleChanged]);
+    }, [userUpdator, scheduleChanged]);
 
     useEffect(()=>{
         const fetchUnregisteredSchedules = async() => {
@@ -53,7 +54,7 @@ export default function PendingSchedules() {
             }
         }
         loggedIn && fetchUnregisteredSchedules();
-    }, [userChanged, scheduleChanged]);
+    }, [userUpdator, scheduleChanged]);
     
     
     const pendingDiv = [];
@@ -68,8 +69,8 @@ export default function PendingSchedules() {
         (pendingPage - 1) * itemsPerPagePending,
         pendingPage * itemsPerPagePending
     );
-    
-    if(!loggedIn) return null;
+
+    if(!loggedIn || paginatedPending.length === 0) return null;
     return (
         <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
            

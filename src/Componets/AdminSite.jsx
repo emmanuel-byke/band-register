@@ -23,18 +23,19 @@ import {
   Users,
   X
 } from "lucide-react";
-import React, { cloneElement, useContext, useEffect, useState } from "react";
+import { cloneElement, useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { AppContext } from '../AppProvider';
 import { addS, capitalize, countUsersInDiv } from "../assets";
 import api from "../Services/api";
+import { useUser } from "../state/hooks/ContextUser";
 import { AttendanceCard, ScheduleCard, UserCard } from "./AdminCards";
 import DropDown from "./DropDown";
 import { PaginationControls, SectionWithPagination } from "./Pagination";
 
 
 export default function AdminSite() {
-  const { user, loggedIn } = useContext(AppContext);
+  const { user } = useUser();
+  const loggedIn = !!user;
 
   
   const [users, setUsers] = useState([]);

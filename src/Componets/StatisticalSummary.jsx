@@ -1,17 +1,16 @@
 import { Calendar, Clock, Music, User } from 'lucide-react';
-import React, { useContext } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { AppContext } from '../AppProvider';
-import { capitalize, getStat, getUser } from "../assets";
+import { capitalize, getStat } from "../assets";
+import { useUser } from '../state/hooks/ContextUser';
 import SectionDivider from "./SectionDivider";
 
 export default function StatisticalSummary() {
 
-  const{ userId, loggedIn } = useContext(AppContext)
+  // const{ userId, loggedIn } = useContext(AppContext)
+  const { user } = useUser();
+  const loggedIn = !!user;
   if(loggedIn) {
-    const user = getUser(userId);
     const stats = getStat(user, "", "", true, 1.3);
-
 
     const getStatusColor = (percentage) => {
       if (percentage >= 90) return 'text-green-500';

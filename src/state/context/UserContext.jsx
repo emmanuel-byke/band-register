@@ -7,7 +7,7 @@ export const UserContext = createContext(null);
 export default function UserProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [refreshUser, setRefreshUser] = useState(false);
+  const [userUpdator, setUserUpdator] = useState(false);
 
   useEffect(() => {
     async function initializeUser() {
@@ -22,13 +22,16 @@ export default function UserProvider({ children }) {
       }
     }
     initializeUser();
-  }, [refreshUser]);
+  }, [userUpdator]);
+
+  const refreshUser = () => {
+    setUserUpdator(!userUpdator);
+  }
 
   
   const updateUser = async (id, formData) => {
     await updateUserAPI(id, formData);
-    setRefreshUser((prev) => !prev);
-
+    refreshUser();
   };
 
   const getUser = async (id) => {
@@ -61,7 +64,7 @@ export default function UserProvider({ children }) {
   
   return (
     <UserContext.Provider
-        value={{ user, setUser, loading, refreshUser, setRefreshUser, updateUser, getUsers, getUser, 
+        value={{ user, userUpdator, setUser, loading, refreshUser, updateUser, getUsers, getUser, 
           userAddDiv, userRemoveDiv, getTopAttendee,changeUserPermissions
       }}
     >

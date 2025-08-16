@@ -13,6 +13,10 @@ export const divUsersAPI = async (divId) => await apiClient.get(`divisions/${div
 export const getAllDivVenuesAPI = async (searchTerm) => await apiClient.get(`venues/with_division/`, { params: { search: searchTerm } });
 export const getAllUpcommingDivVenuesAPI = async (params) => await apiClient.get(`venues/upcoming-with-division/`, params);
 
+export const getDivisionRatingsAPI = async (divId) => withCSRF(() => apiClient.get(`ratings/division_average/${divId}/`));
+export const getUserDivisionRatingsAPI = async () => withCSRF(() => apiClient.post(`ratings/?mine=true`));
+export const rateDivisionAPI = async (params) => withCSRF(() => apiClient.post(`ratings/`, params));
+
 
 // getDivVenues: (divId) => api.get(`divisions/${divId}/get_users/`),
 

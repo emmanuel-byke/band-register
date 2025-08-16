@@ -1,19 +1,18 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { signupAPI, loginAPI, logoutAPI, testConnectionAPI } from '../../api/endpoints/authAPI';
-import { useUser } from '../hooks/ContextUser';
+import { createContext, useState } from 'react';
 import apiClient from '../../api/http/axiosClient';
+import { useUser } from '../hooks/ContextUser';
 
 export const AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
-  const { user, setUser } = useUser()
+  const { user, setUser, refreshUser } = useUser()
 
   const signup = async (data) => {
     setLoading(true);
     try{
-      const response = await signupAPI(data);
+      const response = await apiClient.post('accounts/signup/', data);
       if (response.data.user) setUser(response.data.user);
       return response;
     } catch(error) {
@@ -27,7 +26,6 @@ export default function AuthProvider({ children }) {
   const login = async (formData) => {
     setLoading(true);
     try{
-      // const response = await loginAPI(formData);
       const response = await apiClient.post('accounts/login/', formData);
       if (response.data.user) setUser(response.data.user);
       return response;
@@ -42,8 +40,8 @@ export default function AuthProvider({ children }) {
   const logout = async () => {
     setLoading(true);
     try{
-      // const response = await logoutAPI();
-      const response = apiClient.post('accounts/logout/');
+      const response = await apiClient.post('accounts/logout/');
+      await refreshUser();
       return response;
     } catch(error) {
       console.error(error);
@@ -55,8 +53,7 @@ export default function AuthProvider({ children }) {
   };
 
   const testConnection = async () => {
-    const response = await testConnectionAPI();
-    console.log(response);
+    const response = await apiClient.get('token/test-connection/');
     return response;
   };
 

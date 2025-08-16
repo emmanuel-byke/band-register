@@ -1,22 +1,20 @@
-import { useContext, useState } from "react";
 import { ArrowRight } from 'lucide-react';
-import { useNavigate, NavLink, useLocation } from 'react-router-dom';
-import { useAuth, useUser } from "../../../state/hooks/ContextUser";
-import { cleanAuthForm, validateAuthForm } from "../../../utilities/validators";
-import { BackgroundImage } from "../../reusable/Graphics";
+import { useState } from "react";
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from "../../../state/hooks/ContextUser";
 import { loginBackgroundImage1 } from "../../../utilities/constants";
-import { HighlightedText } from "../../reusable/Text";
-import { LineInput } from "../../reusable/Inputs";
+import { cleanAuthForm, validateAuthForm } from "../../../utilities/validators";
 import { SpinnerBtn } from "../../reusable/Buttons";
-import { AppContext } from "../../../AppProvider";
-import api from "../../../Services/api";
+import { BackgroundImage } from "../../reusable/Graphics";
+import { LineInput } from "../../reusable/Inputs";
+import { HighlightedText } from "../../reusable/Text";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(useLocation()?.state?.isLogin ?? true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // const { login, signup } = useAuth();
+  const { login, signup } = useAuth();
   
   const [formData, setFormData] = useState(cleanAuthForm());
   const [errors, setErrors] = useState(cleanAuthForm());
@@ -41,16 +39,28 @@ export default function AuthForm() {
     e.preventDefault();
     setLoading(true);
     
-    const newErrors = validateAuthForm(isLogin, formData);
-    setErrors(newErrors);
-    
-    if (!Object.values(newErrors).every(error => error === '')) {
-      setLoading(false);
-      return;
+    try{
+      const newErrors = validateAuthForm(isLogin, formData);
+      setErrors(newErrors);
+      
+      if (!Object.values(newErrors).every(error => error === '')) {
+        setLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error("Validation failed:", error);
     }
 
+    if(!isLogin && formData.newUsername) {
+      formData.username = formData.newUsername;
+    }
+    if(!isLogin && formData.newPassword) {
+      formData.password = formData.newPassword;
+    }
+    console.log(formData);
+
     try {
-      isLogin ? await api.login(formData) : await api.signup(formData);
+      isLogin ? await login(formData) : await signup(formData);
       navigate('/');
       setFormData(cleanAuthForm());
     } catch (error) {
@@ -173,14 +183,14 @@ export default function AuthForm() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <LineInput name='username1' value={formData.username} onChange={handleInputChange} label='Username' 
-                      autoComplete="username"/>
-                    {errors.username && <p className="text-red-400 text-sm mt-2">{errors.username}</p>}
+                    <LineInput name='newUsername' value={formData.newUsername} onChange={handleInputChange} label='Username' 
+                      autoComplete="new-username"/>
+                    {errors.newUsername && <p className="text-red-400 text-sm mt-2">{errors.newUsername}</p>}
                   </div>
                   <div>
-                    <LineInput type="password" name='password1' value={formData.password} onChange={handleInputChange} label='Password'
+                    <LineInput type="password" name='newPassword' value={formData.newPassword} onChange={handleInputChange} label='Password'
                       autoComplete="new-password" />
-                    {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password}</p>}
+                    {errors.newPassword && <p className="text-red-400 text-sm mt-2">{errors.newPassword}</p>}
                   </div>
                 </div>
                 <SpinnerBtn loading={loading} label='Get Started' />

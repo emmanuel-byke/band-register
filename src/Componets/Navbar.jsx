@@ -1,19 +1,18 @@
-import { useContext, useState } from "react";
-import { AppContext } from '../AppProvider';
-import { useNavigate, NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 
-import DropDown from "./DropDown";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CogIcon, LogOut, UserIcon } from "lucide-react";
-import { logout } from "../Services/auth";
-import useAuth from "../Services/useAuth";
+import { useAuth, useUser } from "../state/hooks/ContextUser";
+import DropDown from "./DropDown";
+
 
 export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontColor }) {
-    const { setLoggedIn, loggedIn, setUserId, setUser, user } = useContext(AppContext);
     
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const navigate = useNavigate();
-    const { refreshUser } = useAuth();
+    const { user } = useUser();
+    const { logout } = useAuth();
 
     const handleNavigation = (path) => {
         navigate(path);
@@ -37,7 +36,7 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                     {/* Desktop Navigation */}
                     <ul className="hidden md:flex space-x-8 items-center">
                         {navHeaders.map((header, index) => {
-                            if(!header.loginCheck || (header.loginCheck && loggedIn)) {
+                            if(!header.loginCheck || (header.loginCheck && !!user)) {
                                 return (
                                     <li key={index}>
                                         <a
@@ -73,7 +72,7 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
 
                     {/* Auth Section */}
                     <div className="hidden md:flex items-center gap-6">
-                        {loggedIn ? (
+                        {!!user ? (
                             <div className="relative group">
 
                                 <DropDown
@@ -111,12 +110,11 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                                             label: "Log Out",
                                             onClick: () => {
                                                 logout();
-                                                refreshUser();
                                             },
                                             icon: <LogOut className="h-5 w-5 mr-2 text-red-500" />,
                                             styles: "text-red-600 hover:bg-red-50"
                                         },
-                                    ]}
+                                    ].filter(item=>item.label==='Admin'?user.is_admin:true)}
                                     // ].filter(item=>item.label==='Admin'?user.is_admin:true)}
                                 />
                             </div>
@@ -147,7 +145,7 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                     <div className="md:hidden py-4 border-t border-gray-100 bg-white">
                         <ul className="space-y-2">
                             {navHeaders.map((header, index) => {
-                                if(!header.loginCheck || (header.loginCheck && loggedIn)) {
+                                if(!header.loginCheck || (header.loginCheck && !!user)) {
                                     return (
                                         <li key={index}>
                                             <NavLink
@@ -166,7 +164,7 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                             })}
                         </ul>
                         <div className="mt-4 pt-4 border-t border-gray-100">
-                            {loggedIn ? (
+                            {!!user ? (
                                 <div className="space-y-2">
                                     <button
                                         onClick={() => handleNavigation('/userprofile')}
@@ -176,9 +174,7 @@ export default function Navbar({ navHeaders, mainIcon, userIcon, bgColor, fontCo
                                     </button>
                                     <button
                                         onClick={() => {
-                                            setLoggedIn(false);
-                                            setUserId(null);
-                                            setUser(null);
+                                            logout();
                                         }}
                                         className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 rounded-md"
                                     >

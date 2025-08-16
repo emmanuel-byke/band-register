@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { CheckCircle2, CloudCog, AlarmClock, DatabaseZap, Loader2 } from 'lucide-react';
-import api from '../Services/api';
+import { AlarmClock, CheckCircle2, CloudCog, DatabaseZap, Loader2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../state/hooks/ContextUser';
 
 const STATUS_MESSAGES = [
   { threshold: 0, message: 'Waking up database services...' },
@@ -21,6 +21,8 @@ const TestConnection = ({ isConnected, setIsConnected }) => {
   const intervalRef = useRef(null);
   const progressRef = useRef(null);
 
+  const { testConnection } = useAuth();
+
   const updateProgress = () => {
     const elapsed = Date.now() - startTime;
     const newProgress = Math.min((elapsed / 120000) * 100, 100);
@@ -40,7 +42,7 @@ const TestConnection = ({ isConnected, setIsConnected }) => {
 
   const checkConnection = async () => {
     try {
-      const response = await api.test_connection();
+      const response = await testConnection();
       const connected = response && response.data && response.data.connected ? response.data.connected : false;
 
       if (connected) {

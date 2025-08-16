@@ -27,6 +27,7 @@ export default function ActivitiesSummary() {
         fetchActivities();
       }, []);
 
+    if(activities.length === 0) return null;
     return (
         <section className="flex flex-col justify-center items-center gap-8 mt-10" id="activities">
             <div className="flex justify-center items-center mt-10">
