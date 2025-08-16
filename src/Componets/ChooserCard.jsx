@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import api from "../Services/api";
+import { useDivision } from "../state/hooks/ContextUser";
 
 export default function ChooserCard({currentImg, setCurrentImg, divId}) {
     const [division, setDivision] = useState([]);
+    const { getDivision } = useDivision();
 
     useEffect(()=>{
         const getDiv = async(divId) => {
             try {
-                const response = await api.getDivision(divId);
+                const response = await getDivision(divId);
                 setDivision(response.data);
             } catch (error) {
                console.error(error?.response?.data);

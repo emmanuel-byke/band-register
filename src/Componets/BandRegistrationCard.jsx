@@ -1,11 +1,9 @@
 import { Star } from "lucide-react";
-import { NavLink } from "react-router-dom";
-import api from "../Services/api";
-import useAuth from "../Services/useAuth";
-import OverlayDetails from "./OverlayDetails";
 import { useContext } from "react";
+import { NavLink } from "react-router-dom";
 import { AppContext } from "../AppProvider";
 import { useUser } from "../state/hooks/ContextUser";
+import OverlayDetails from "./OverlayDetails";
 
 
 export default function BandRegistrationCard({ division, user, isJoin, setRefresh }) {
@@ -15,12 +13,13 @@ export default function BandRegistrationCard({ division, user, isJoin, setRefres
     const bgColor = isJoin ? "hover:bg-green-500" : "hover:bg-red-500";
     const { refreshUser } = useUser();
     const { setRenderedInstr } = useContext(AppContext);
+    const { userAddDiv, userRemoveDiv } = useUser();
 
     const handleJoin = async(e) => {
         try{
             const response = isJoin
-                ? await api.userAddDiv( user.id, {division_id: division.id }) 
-                : await api.userRemoveDiv( user.id, {division_id: division.id })
+                ? await userAddDiv( user.id, {division_id: division.id }) 
+                : await userRemoveDiv( user.id, {division_id: division.id })
             refreshUser();
             setRefresh(prev=>!prev);
         } catch(error) {

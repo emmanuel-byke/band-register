@@ -1,20 +1,19 @@
 import { Calendar, MapPinned, Quote, Star, Users } from "lucide-react";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../AppProvider";
-import api from "../Services/api";
 import {
   getDateDetails,
   getFormattedTime,
   icons
 } from "../assets";
 import { detailsNavHeaders } from "../assets/constants";
+import { useDivision, useUser } from "../state/hooks/ContextUser";
 import AllUsers from "./AllUsers";
 import Contact from "./Contact";
 import InfoCard from "./InfoCard";
 import Navbar from "./Navbar";
 import OverlayDetails from "./OverlayDetails";
-import { useDivision, useUser } from "../state/hooks/ContextUser";
 
 export default function Details() {
   const { id } = useParams();
@@ -26,6 +25,7 @@ export default function Details() {
   const { getDivisionRatings, getUserDivisionRatings, rateDivision } = useDivision();
   const [ratings, setRatings] = useState({avg: 0, user: 0});
   const { user } = useUser();
+  const { divUsers } = useDivision();
 
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -40,7 +40,7 @@ export default function Details() {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await api.divUsers(divisionId);
+        const response = await divUsers(divisionId);
         setMembers(response.data);
       } catch (error) {
         console.error(error?.response?.data);

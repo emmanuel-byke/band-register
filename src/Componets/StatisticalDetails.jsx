@@ -3,12 +3,11 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { absentCal, addDateDesc, capitalize, combineByDateDesc, getDateDetails, getDateRange, timeDiff } from "../assets";
-import api from '../Services/api';
-import { useUser } from '../state/hooks/ContextUser';
+import { useDivision, useUser } from '../state/hooks/ContextUser';
 import SectionDivider from './SectionDivider';
 
 export default function StatisticalDetails() {
-  // const{ user, loggedIn, userChanged } = useContext(AppContext)
+  const { getDivisionsByUser } = useDivision();
   const { user, userUpdator } = useUser();
   const loggedIn = !!user;
 
@@ -26,7 +25,7 @@ export default function StatisticalDetails() {
     const fetchDivisions = async() => {  
       try{
         const divId = currentDiv===null||capitalize(currentDiv)==='All'? 'all' : Number(currentDiv)
-        const response = await api.getDivisionsByUser(user.id, {startDate, endDate, divId});
+        const response = await getDivisionsByUser(user.id, {startDate, endDate, divId});
         setAllDivisions(response.data.serializers.divisions);
         setStats(response.data.stats);
         setAttendanceStat(combineByDateDesc(addDateDesc(response.data.serializers.attendances, response.data.date_range)));
@@ -101,7 +100,6 @@ export default function StatisticalDetails() {
     return `bg-red-500/${100-percentage}`;
   };
   
-  console.log(stats.length)
   if(!loggedIn || stats.length === 0) return null;
   return (
     <div className="min-h-screen bg-gray-50 p-8 font-inter-tight">

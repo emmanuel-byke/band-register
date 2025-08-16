@@ -1,8 +1,7 @@
 import { MapPinned } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getDateDetails, getFormattedTime } from "../assets";
-import api from "../Services/api";
-import { useUser } from "../state/hooks/ContextUser";
+import { useDivision, useSchedule, useUser } from "../state/hooks/ContextUser";
 import InfoCard from "./InfoCard";
 import NoRecordsCard from "./NoRecord";
 import OverlayDetails from "./OverlayDetails";
@@ -11,6 +10,8 @@ import SectionDivider from "./SectionDivider";
 import VenueRegister from "./VenueRegister";
 
 export default function PendingSchedules() {
+    const { getSchedules } = useSchedule();
+    const { getAllUpcommingDivVenues } = useDivision();
     const { user, userUpdator } = useUser();
     const loggedIn = !!user;
     const [ scheduleChanged, setScheduleChanged ] = useState(false);
@@ -30,7 +31,7 @@ export default function PendingSchedules() {
         const fetchPendingSchedules = async() => {
             try{
                 const params = { params: { search: '', users:user.id } }
-                const response = await api.getAllUpcommingDivVenues(params);
+                const response = await getAllUpcommingDivVenues(params);
                 setPendingSchedule(response.data);
             } catch(error) {
                 console.error(error?.response?.data);
@@ -42,7 +43,7 @@ export default function PendingSchedules() {
     useEffect(()=>{
         const fetchUnregisteredSchedules = async() => {
             try{
-                const response = await api.getSchedules(user.id);
+                const response = await getSchedules(user.id);
                 setUnregisteredSchedule([...response.data.new, ...response.data.rejected])
                 setDetails({
                     pending: response.data.pending.length,

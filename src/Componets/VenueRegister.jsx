@@ -2,6 +2,7 @@ import { ArrowLeft, CheckCircle2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { capitalize, getDateDetails, getFormattedTime } from '../assets';
 import api from '../Services/api';
+import { useDivision, useSchedule } from '../state/hooks/ContextUser';
 
 export default function VenueRegister({venue, divId, username, setScheduleChanged}) {
     const day = capitalize(getDateDetails(venue.date).date2);
@@ -13,12 +14,15 @@ export default function VenueRegister({venue, divId, username, setScheduleChange
     const [selectedReason, setSelectedReason] = useState('');
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const [division, setDivision] = useState({});
+
+    const { getDivision } = useDivision();
+    const { handleScheduleResponse } = useSchedule();
     
 
     useEffect(()=>{
         const fetchDivisions = async()=>{
             try{
-                const response = await api.getDivision(divId);
+                const response = await getDivision(divId);
                 setDivision(response.data);
             } catch(error) {
                 console.error(error?.response?.data);                
@@ -44,7 +48,7 @@ export default function VenueRegister({venue, divId, username, setScheduleChange
             myForm.username = username;
             myForm.req_admin_review = admin_review;
             myForm.is_user_state = true;
-            await api.handleScheduleResponse(divId, myForm);
+            await handleScheduleResponse(divId, myForm);
 
             setScheduleChanged(prev=>!prev);
             if(admin_review) {

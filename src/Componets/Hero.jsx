@@ -6,8 +6,6 @@ export default function Hero() {
     const { user } = useUser();
     const loggedIn = !!user;
 
-    console.log(user)
-
     return(
         <header className="w-full bg-gradient-to-br from-sky-50 to-blue-50 py-16 md:py-24" id="home">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

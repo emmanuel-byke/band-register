@@ -22,7 +22,7 @@ export default function ScheduleProvider({ children }) {
     const response = await updateVenueAPI(divId, venue);
     return response;
   };
-  const deleteAllVenue = async (id) => {
+  const deleteVenue = async (id) => {
     const response = await deleteVenueAPI(id);
     return response;
   };
@@ -34,7 +34,7 @@ export default function ScheduleProvider({ children }) {
   
   return (
     < ScheduleContext.Provider value={{ getSchedules,handleScheduleResponse, createScheduleVenue, updateVenue, 
-        deleteAllVenue, getAllPendingSchedules
+        deleteVenue, getAllPendingSchedules
      }} >
       {children}
     </ScheduleContext.Provider>

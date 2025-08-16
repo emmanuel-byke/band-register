@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../Services/api";
+import { useActivity } from "../state/hooks/ContextUser";
 import Activity from "./Activity";
 import Pagination from "./Pagination";
 
@@ -15,10 +15,13 @@ export default function ActivitiesSummary() {
         currentPage * itemsPerPage
     );
 
+    const { getActivities } = useActivity();
+
     useEffect(() => {
         const fetchActivities = async () => {
           try {
-            const response = await api.getActivities('');
+            const response = await getActivities('');
+            console.log(response);
             setActivities(response.data);
           } catch (error) {
             console.error('Error fetching activities:', error?.response?.data);

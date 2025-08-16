@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 import { Settings, User, Bell, CreditCard, Activity, Shield, Upload, Clock, Calendar, AlertCircle, Mic, MessageSquare, UserCircle } from "lucide-react";
 import api from '../Services/api'
 import useAuth from "../Services/useAuth";
+import { useUser } from "../state/hooks/ContextUser";
 
 function jsonToFormData(json) {
     const formData = new FormData();
@@ -22,7 +23,8 @@ function jsonToFormData(json) {
 
 export default function Profile() {
     const { user, loggedIn, setUser } = useContext(AppContext);
-    const { refreshUser } = useAuth()
+    const { refreshUser } = useAuth();
+    const { updateUser } = useUser();
     const [isSave, setIsSave] = useState(true);
     
 
@@ -50,7 +52,7 @@ export default function Profile() {
             }
 
             try{
-                const response = await api.updateUser(updatedUser.id, formData);
+                const response = await updateUser(updatedUser.id, formData);
                 console.log(response);
                 refreshUser();
             } catch(error){

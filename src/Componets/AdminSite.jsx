@@ -26,17 +26,21 @@ import {
 import { cloneElement, useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { addS, capitalize, countUsersInDiv } from "../assets";
-import api from "../Services/api";
-import { useUser } from "../state/hooks/ContextUser";
+import { useActivity, useAttendance, useDivision, useFeedback, useSchedule, useUser } from "../state/hooks/ContextUser";
 import { AttendanceCard, ScheduleCard, UserCard } from "./AdminCards";
 import DropDown from "./DropDown";
 import { PaginationControls, SectionWithPagination } from "./Pagination";
 
 
 export default function AdminSite() {
-  const { user } = useUser();
-  const loggedIn = !!user;
+  const { getActivities, updateActivity, createActivity, deleteActivity } = useActivity();
+  const { getAllDivVenues, getDivisions, getDivisionsDetails, createDivision, updateDivision, deleteDivision } = useDivision();
+  const { getAllPendingSchedules, updateVenue, createScheduleVenue, deleteVenue, handleScheduleResponse } = useSchedule();
+  const { getTopAttendee, getUsers, changeUserPermissions, user } = useUser();
+  const { getMonthlyAttendance } = useAttendance();
+  const { createFeedback } = useFeedback();
 
+  const loggedIn = !!user;
   
   const [users, setUsers] = useState([]);
   const [userChanged, setUserChanged] = useState(false);
@@ -95,11 +99,10 @@ export default function AdminSite() {
   const [avgAttendance, setAvgAttendance] = useState([]);
   const [activeUsersCount, setActiveUsersCount] = useState(0);
   
-  
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await api.getActivities(searchSchedule);
+        const response = await getActivities(searchSchedule);
         setActivities(response.data);
       } catch (error) {
         console.error('Error fetching activities:', error);
@@ -111,7 +114,7 @@ export default function AdminSite() {
   useEffect(() => {
     const fetchSchedules = async () => {
       try {
-        const response = await api.getAllDivVenues(searchSchedule);
+        const response = await getAllDivVenues(searchSchedule);
         setVenues(response.data);
       } catch (error) {
         console.error('Error fetching All Div Schedules:', error);
@@ -124,7 +127,7 @@ export default function AdminSite() {
     const fetchAllPendingSchedules = async () => {
       try {
         const params = {param: {search: searchSchedule }}
-        const response = await api.getAllPendingSchedules(params);
+        const response = await getAllPendingSchedules(params);
         setPendingRequests(response.data);
       } catch (error) {
         console.error('Error fetching All Div Schedules:', error);
@@ -136,7 +139,7 @@ export default function AdminSite() {
   useEffect(() => {
     const fetchDivisions = async () => {
       try {
-        const response = await api.getDivisions(searchDivsion);
+        const response = await getDivisions(searchDivsion);
         setDivisions(response.data);
       } catch (error) {
         console.error('Error fetching divisions:', error);
@@ -163,12 +166,12 @@ export default function AdminSite() {
     }
     try {
       if(isActivity) {
-        activityIsEditing ? await api.updateActivity(activityFormData.id, formData) : await api.createActivity(formData);
+        activityIsEditing ? await updateActivity(activityFormData.id, formData) : await createActivity(formData);
         setActivityChanged(!activityChanged);
       } else {
         scheduleIsEditing
-        ? await api.updateVenue(activityFormData.venue.id, activityFormData.venue)
-        : await api.createScheduleVenue(activityFormData.division_id, activityFormData.venue);
+        ? await updateVenue(activityFormData.venue.id, activityFormData.venue)
+        : await createScheduleVenue(activityFormData.division_id, activityFormData.venue);
         setScheduleChanged(prev=>!prev);
       }
       setActivityFormData(
@@ -185,7 +188,7 @@ export default function AdminSite() {
       
       try{
         const max_users = 5;
-        const response = await api.getTopAttendee({max_users});
+        const response = await getTopAttendee({max_users});
         setTopAttendance(response.data.top)
         setAvgAttendance(response.data.sessions>0?((response.data.attendance/response.data.sessions)*100).toFixed(1):0);
         setActiveUsersCount(response.data.active_users)
@@ -199,7 +202,7 @@ export default function AdminSite() {
       }
       try{
         const totalMonths = 3;
-        const response = await api.getMonthlyAttendance({totalMonths});
+        const response = await getMonthlyAttendance({totalMonths});
         setDivOverview(response.data)
       } catch(error) {
         console.error(error?.response?.data);
@@ -208,7 +211,7 @@ export default function AdminSite() {
         const divId = 'all';
         const startDate = '2025-03-01';
         const endDate = '2025-03-14';
-        const response = await api.getDivisionsDetails({startDate, endDate, divId});
+        const response = await getDivisionsDetails({startDate, endDate, divId});
         // getTopAbsenceReason(users, {start: '2025-03-01', end: '2025-03-14'})
         setTopAbsentReason(response.data.stats.top_absence_reason||"")
         console.log(response.data);
@@ -222,7 +225,7 @@ export default function AdminSite() {
   useEffect(()=>{
     const fetchUsers = async() => {
       try{
-        const response = await api.getUsers({ param: { search: searchUser} });
+        const response = await getUsers({ param: { search: searchUser} });
         setUsers(response.data);
         console.log(response.data);
       } catch(error) {
@@ -240,7 +243,7 @@ export default function AdminSite() {
     if(!loggedIn) return;
     e.preventDefault();
     try{
-      divisionIsEditing? await api.updatedivision(divisionFormData.id, divisionFormData) : await api.createDivision(divisionFormData);
+      divisionIsEditing? await updateDivision(divisionFormData.id, divisionFormData) : await createDivision(divisionFormData);
       setDivisionChanged(prev=>!prev);
       setShowDivCreateForm(false);
       setDivisionFormData(
@@ -263,7 +266,7 @@ export default function AdminSite() {
   const handleDeleteDivision = async(division_id) =>{
     if(!loggedIn) return;
     try {
-      await api.deletedivision(division_id);
+      await deleteDivision(division_id);
       setDivisionChanged(prev=>!prev);
     } catch (error) {
       console.error('Error Deleting activities:', error);
@@ -273,7 +276,7 @@ export default function AdminSite() {
   const handleActivateDivision = async(division) => {
     if(!loggedIn) return;
     try{
-      await api.updatedivision(division.id, {is_active: !division.is_active});
+      await updateDivision(division.id, {is_active: !division.is_active});
       setDivisionChanged(prev=>!prev);
     } catch(error) {
       console.error(error?.response?.data);
@@ -290,7 +293,7 @@ export default function AdminSite() {
   const handleDeleteActivity = async(activity_id) =>{
     if(!loggedIn) return;
     try {
-      await api.deleteActivity(activity_id);
+      await deleteActivity(activity_id);
       setActivityChanged(!activityChanged);
     } catch (error) {
       console.error('Error Deleting activities:', error);
@@ -306,7 +309,7 @@ export default function AdminSite() {
   const handleDeleteVenue = async(venue) =>{
     if(!loggedIn) return;
     try {
-      await api.deleteVenue(venue.id);
+      await deleteVenue(venue.id);
       setScheduleChanged(prev=>!prev);
     } catch(error) {
       console.error(error?.response?.data);
@@ -322,7 +325,7 @@ export default function AdminSite() {
         req_admin_accept: accepted,
         is_user_state: false,
       }
-      const response = await api.handleScheduleResponse(pending_req.division, myForm);
+      const response = await handleScheduleResponse(pending_req.division, myForm);
       setPendingRequestsChanged(prev=>!prev);
     } catch(error) {
       console.error(error?.response?.data)
@@ -335,7 +338,7 @@ export default function AdminSite() {
   const changePermissions = async(userId, formData) => {
     if(!loggedIn) return;
     try{
-      const response = await api.changeUserPermissions(userId, formData)
+      const response = await changeUserPermissions(userId, formData)
       setUserChanged(prev=>!prev);
     } catch(error) {
       console.error(error?.response?.data);
@@ -348,7 +351,7 @@ export default function AdminSite() {
   const handleFeedback = async() => {
     if(!loggedIn) return;
     try{
-      const response = await api.createFeedback(feedbackDetails);
+      const response = await createFeedback(feedbackDetails);
       console.log(response.data);
     } catch(error){
       console.error(error?.response?.data);

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { capitalize } from "../assets";
-import api from "../Services/api";
-import { useUser } from "../state/hooks/ContextUser";
+import { useFeedback, useUser } from "../state/hooks/ContextUser";
 import SectionDivider from "./SectionDivider";
 
 export default function Feedback() {
+  const { getFeedbacks } = useFeedback();
   const { user } = useUser();
   const loggedIn = !!user;
   const [feedback, setFeedback] = useState([]);
@@ -12,7 +12,7 @@ export default function Feedback() {
   useEffect(()=>{
     const fetchFeedbacks = async() => {
       try{
-        const response = await api.getFeedbacks('');
+        const response = await getFeedbacks('');
         setFeedback(response.data.length>0?response.data[response.data.length-1]:[]);
         console.log(response.data);
       } catch(error) {

@@ -1,12 +1,12 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { checkUserInDivision } from "../assets";
-import api from "../Services/api";
-import { useUser } from "../state/hooks/ContextUser";
+import { useDivision, useUser } from "../state/hooks/ContextUser";
 import BandRegistrationCard from "./BandRegistrationCard";
 import SectionDivider from "./SectionDivider";
 
 export default function BandRegistration() {
+    const { getDivisions } = useDivision();
     const { user } = useUser();
     const loggedIn = !!user;
     
@@ -24,7 +24,7 @@ export default function BandRegistration() {
 
     useEffect(()=>{
         const fetchAllDivisions = async() => {
-            const response = await api.getDivisions('');
+            const response = await getDivisions('');
             setDivisions(response.data);
         }
         fetchAllDivisions()
