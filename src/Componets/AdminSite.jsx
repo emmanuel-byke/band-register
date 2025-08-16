@@ -89,7 +89,7 @@ export default function AdminSite() {
   const [pendingRequestsChanged, setPendingRequestsChanged] = useState(false);
   
   const [topAttendance, setTopAttendance] = useState([]);
-  const [topAbsentReason, setTopAbsentReason] = useState([]);
+  const [topAbsentReason, setTopAbsentReason] = useState({reason: '', value: 0});
   const [attendanceOverview, setAttendanceOverview] = useState({
     total_attendance: 0,
     total_sessions: 0,
@@ -213,7 +213,13 @@ export default function AdminSite() {
         const endDate = '2025-03-14';
         const response = await getDivisionsDetails({startDate, endDate, divId});
         // getTopAbsenceReason(users, {start: '2025-03-01', end: '2025-03-14'})
-        setTopAbsentReason(response.data.stats.top_absence_reason||"")
+        // setTopAbsentReason({
+        //   reason: response.data.stats.top_absence_reason || "No absentee", 
+        //   value: (response.data.stats.totalSessions-response.data.stats.attendedSessions) || 0
+        // });
+        setTopAbsentReason(
+          response.data.stats.top_absence_reason || {reason: "No absentee", value: 0}
+        );
         console.log(response.data);
       } catch(error) {
         console.error(error?.response?.data);
