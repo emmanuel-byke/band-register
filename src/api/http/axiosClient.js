@@ -1,8 +1,8 @@
 import axios from 'axios';
 import Cookies from "js-cookie";
 
-const BASE_URL = 'http://localhost:8000/';
-// const BASE_URL = 'https://band-register-drf.onrender.com/';
+// const BASE_URL = 'http://localhost:8000/';
+const BASE_URL = 'https://band-register-drf.onrender.com/';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
