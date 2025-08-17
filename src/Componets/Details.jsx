@@ -23,8 +23,10 @@ export default function Details() {
   const item = renderedInstr;
   const [filledStars, setFilledStars] = useState(0);
   const { getDivisionRatings, getUserDivisionRatings, rateDivision } = useDivision();
-  const [ratings, setRatings] = useState({avg: 0, user: 0});
-  const { user } = useUser();
+  const [ratingsChanged, setRatingsChanged] = useState(false);
+  const [selfRating, setSelfRating] = useState(false);
+  const { user, refreshUser, fetchUser } = useUser();
+  const [userId, setUserId] = useState();
   const { divUsers } = useDivision();
 
 
@@ -36,6 +38,17 @@ export default function Details() {
     currentPage * itemsPerPage
   );
 
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const response = await fetchUser();
+        setUserId(response.data.id);
+      } catch (error) {
+        console.error(error);
+      } 
+    };
+    loadUser();
+  }, []);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -50,23 +63,41 @@ export default function Details() {
   }, [divisionId]);
 
   useEffect(() => {
-    const fetchRatings = async () => {
+    let ratings = 0;
+    const fetchUserRatings = async () => {
+      try {
+        const response = await getUserDivisionRatings({ userId, divId: divisionId });
+        if(response.data) {
+          setSelfRating(true);
+          setFilledStars(response.data.value);
+          ratings = response.data.value;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };  
+
+    const fetchAvgRatings = async () => {
       try {
         const divRatingsresponse = await getDivisionRatings(divisionId);
-        const userRatingsresponse = await getUserDivisionRatings();
-        setRatings({ avg: divRatingsresponse.data, user: userRatingsresponse.data });
-        console.log("Ratings:", divRatingsresponse.data, userRatingsresponse.data);
+        setSelfRating(false);
+        setFilledStars(divRatingsresponse.data.avg_rating);
       } catch (error) {
-        console.error(error?.response?.data);
+        console.error(error);
       }
     };
-    fetchRatings();
-  }, [divisionId]);
+    if(divisionId && userId) fetchUserRatings();
+    if(ratings<=0 && divisionId) fetchAvgRatings();
+  }, [divisionId, userId, ratingsChanged]);
 
   const rateInstrument = async (rating) => {
     setFilledStars(rating);
     try {
-      await rateDivision({ division: item.id, value: rating });
+      const response = await rateDivision({ divId: divisionId, value: rating });
+      console.log(response.data);
+      if(!selfRating) {
+        setRatingsChanged(prev=>!prev);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -108,8 +139,8 @@ export default function Details() {
                       key={i}
                       className={`w-8 h-8 ${
                         i < filledStars
-                          ? "fill-emerald-400 stroke-emerald-400" 
-                          : "stroke-gray-600"
+                          ? `${selfRating ? "fill-emerald-400 stroke-emerald-400" : "fill-amber-600 stroke-amber-600"}`
+                          : `stroke-gray-600`
                       }`}
                       onClick={() => rateInstrument(i + 1)}
                     />

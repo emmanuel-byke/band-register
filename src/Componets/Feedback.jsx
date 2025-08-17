@@ -4,17 +4,17 @@ import { useFeedback, useUser } from "../state/hooks/ContextUser";
 import SectionDivider from "./SectionDivider";
 
 export default function Feedback() {
-  const { getFeedbacks } = useFeedback();
+  const { getFeedbackRender } = useFeedback();
   const { user } = useUser();
   const loggedIn = !!user;
-  const [feedback, setFeedback] = useState([]);
+  const [feedback, setFeedback] = useState();
 
   useEffect(()=>{
     const fetchFeedbacks = async() => {
       try{
-        const response = await getFeedbacks('');
-        setFeedback(response.data.length>0?response.data[response.data.length-1]:[]);
+        const response = await getFeedbackRender(user.id);
         console.log(response.data);
+        setFeedback(response.data);
       } catch(error) {
         console.error(error?.response?.data);
       }
@@ -23,7 +23,7 @@ export default function Feedback() {
   }, []);
 
 
-  if(!loggedIn || feedback.length === 0) return null;
+  if(!loggedIn || !feedback) return null;
   return (
     <main className="flex flex-col flex-wrap justify-center items-center">
       <div className="mt-40">

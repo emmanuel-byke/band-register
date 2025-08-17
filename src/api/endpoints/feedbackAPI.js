@@ -6,5 +6,5 @@ export const createFeedbackAPI = async (formData) => withCSRF(() => apiClient.po
 export const updateFeedbackAPI = async (id, feedback) => withCSRF(() => apiClient.patch(`feedbacks/${id}/`, feedback));
 export const deleteFeedbackAPI = async (id) => withCSRF(() => apiClient.delete(`feedbacks/${id}/`));
 
-
+export const feedbackRenderAPI = async (userId) => withCSRF(() => apiClient.get(`feedbacks/render/`, { params: { userId } }));
 

@@ -25,12 +25,11 @@ export default function StatisticalDetails() {
     const fetchDivisions = async() => {  
       try{
         const divId = currentDiv===null||capitalize(currentDiv)==='All'? 'all' : Number(currentDiv)
-        const response = await getDivisionsByUser(user.id, {startDate, endDate, divId});
+        const response = await getDivisionsByUser({startDate, endDate, divId, userId: user.id});
         setAllDivisions(response.data.serializers.divisions);
         setStats(response.data.stats);
         setAttendanceStat(combineByDateDesc(addDateDesc(response.data.serializers.attendances, response.data.date_range)));
         setAbsentStat(absentCal(response.data.serializers.absents, response.data.date_range));
-
         setDateRange(response.data.date_range);
         setCardData([
           { metric: 'Total Practice Hours', value: `${(response.data.stats.attendedHours/3600).toFixed(1)}h`, change: '+1%' },

@@ -21,7 +21,6 @@ export default function ActivitiesSummary() {
         const fetchActivities = async () => {
           try {
             const response = await getActivities('');
-            console.log(response);
             setActivities(response.data);
           } catch (error) {
             console.error('Error fetching activities:', error?.response?.data);

@@ -9,11 +9,19 @@ export default function UserProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [userUpdator, setUserUpdator] = useState(false);
 
+  const fetchUser = async () => {
+    try {
+      const response = await getCurrentUserAPI();
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
+  }
   useEffect(() => {
     async function initializeUser() {
       setLoading(true);
       try {
-        const response = await getCurrentUserAPI();
+        const response = await fetchUser();
         setUser(response.data);
       } catch (error) {
         setUser(null);
@@ -65,7 +73,7 @@ export default function UserProvider({ children }) {
   return (
     <UserContext.Provider
         value={{ user, userUpdator, setUser, loading, refreshUser, updateUser, getUsers, getUser, 
-          userAddDiv, userRemoveDiv, getTopAttendee,changeUserPermissions
+          userAddDiv, userRemoveDiv, getTopAttendee,changeUserPermissions, fetchUser
       }}
     >
       {children}

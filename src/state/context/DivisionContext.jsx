@@ -17,8 +17,8 @@ export default function DivisionProvider({ children }) {
     const response = await getDivisionsAPI(search);
     return response;
   };
-  const getDivisionsByUser = async (userId, formData) => {
-    const response = await getDivisionsByUserAPI(userId, formData);
+  const getDivisionsByUser = async (formData) => {
+    const response = await getDivisionsByUserAPI(formData);
     return response;
   };
   const getDivisionsDetails = async (formData) => {
@@ -54,8 +54,8 @@ export default function DivisionProvider({ children }) {
     const response = await getDivisionRatingsAPI(divId);
     return response;
   };
-  const getUserDivisionRatings = async () => {
-    const response = await getUserDivisionRatingsAPI();
+  const getUserDivisionRatings = async (formData) => {
+    const response = await getUserDivisionRatingsAPI(formData);
     return response;
   };
   const rateDivision = async (params) => {

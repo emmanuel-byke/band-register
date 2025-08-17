@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { createFeedbackAPI, deleteFeedbackAPI, getFeedbackAPI, getFeedbacksAPI, 
+import { createFeedbackAPI, deleteFeedbackAPI, feedbackRenderAPI, getFeedbackAPI, getFeedbacksAPI, 
     updateFeedbackAPI } from '../../api/endpoints/feedbackAPI';
 
 export const FeedbackContext = createContext(null);
@@ -27,9 +27,14 @@ export default function FeedbackProvider({ children }) {
     return response;
   };
 
+  const getFeedbackRender = async (userId) => {
+    const response = await feedbackRenderAPI(userId);
+    return response;
+  };
+
   
   return (
-    < FeedbackContext.Provider value={{ getFeedback, getFeedbacks, createFeedback, updateFeedback, deleteFeedback }} >
+    < FeedbackContext.Provider value={{ getFeedback, getFeedbacks, createFeedback, updateFeedback, deleteFeedback, getFeedbackRender }} >
       {children}
     </FeedbackContext.Provider>
   );

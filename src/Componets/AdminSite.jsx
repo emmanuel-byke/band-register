@@ -41,7 +41,7 @@ export default function AdminSite() {
   const { createFeedback } = useFeedback();
 
   const loggedIn = !!user;
-  
+
   const [users, setUsers] = useState([]);
   const [userChanged, setUserChanged] = useState(false);
   const [divisions, setDivisions] = useState([]);
