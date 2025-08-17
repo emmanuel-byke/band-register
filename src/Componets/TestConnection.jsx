@@ -3,18 +3,18 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../state/hooks/ContextUser';
 
 const STATUS_MESSAGES = [
-  { threshold: 0, message: 'Waking up database services...' },
-  { threshold: 20, message: 'Initializing cloud infrastructure...' },
-  { threshold: 40, message: 'Loading database modules...' },
-  { threshold: 60, message: 'Establishing secure connection...' },
-  { threshold: 80, message: 'Finalizing startup sequence...' },
+  { threshold: 10, message: 'Your talent will be recognized here...' },
+  { threshold: 25, message: 'We thank almighty for this opportunity...' },
+  { threshold: 39, message: 'Never be ashamed of your talents...' },
+  { threshold: 60, message: 'God is with you...' },
+  { threshold: 80, message: 'Team Jesus...' },
 ];
 
-let SUCCESS_DISPLAY_DURATION = 1;
+let SUCCESS_DISPLAY_DURATION = 5;
 
 const TestConnection = ({ isConnected, setIsConnected }) => {
   const [progress, setProgress] = useState(0);
-  const [statusMessage, setStatusMessage] = useState('Initializing connection...');
+  const [statusMessage, setStatusMessage] = useState('Welcome to Victory Celebration Band...');
   const [showSuccess, setShowSuccess] = useState(false);
   const [startTime] = useState(Date.now());
   const timeoutRef = useRef(null);
@@ -48,7 +48,7 @@ const TestConnection = ({ isConnected, setIsConnected }) => {
       if (connected) {
         clearTimers();
         setShowSuccess(true);
-        setStatusMessage('Database connection established!');
+        setStatusMessage('VICTORY CELEBRATION BAND');
 
         timeoutRef.current = setTimeout(() => {
           setIsConnected(true);
@@ -88,7 +88,7 @@ const TestConnection = ({ isConnected, setIsConnected }) => {
             <DatabaseZap className="absolute -bottom-2 -right-2 w-8 h-8 text-blue-300 animate-bounce" />
           </div>
           <h2 className="text-3xl font-bold text-gray-800 font-poppins">
-            Database Booting
+            Victory Celebration Band
           </h2>
         </div>
 
@@ -136,11 +136,11 @@ const TestConnection = ({ isConnected, setIsConnected }) => {
         <div className="flex flex-col items-center justify-center gap-4">
           <CheckCircle2 className="w-20 h-20 text-emerald-600 animate-pop-in" />
           <h2 className="text-3xl font-bold text-gray-800 font-poppins">
-            Database Online
+            Victory Celebration Band
           </h2>
         </div>
         <p className="text-lg text-gray-600 animate-slide-up">
-          Connection stabilized and ready for queries
+          Database Online|Connection stabilized and ready for queries
         </p>
       </div>
     </div>

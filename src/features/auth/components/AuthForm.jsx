@@ -153,8 +153,8 @@ export default function AuthForm() {
               
               <div className='flex flex-row justify-between items-center mb-10'>
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    <HighlightedText>Join</HighlightedText> Us
+                  <h2 className="text-2xl font-bold text-white mb-2 line-clamp-1">
+                    <HighlightedText>Victory Celebration</HighlightedText> Band
                   </h2>
                   <p className="text-white/70 text-sm">Create your account to get started</p>
                 </div>

@@ -211,7 +211,7 @@ export default function AuthForm() {
             <div className={`absolute top-0 left-0 right-0 backdrop-blur-lg rounded-2xl shadow-2xl p-8 transition-all 
               duration-500 ease-in-out ${!isLogin ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}`}>
               <div className='flex flex-row justify-between items-center mb-8'>
-                <h2 className="text-3xl font-bold text-white text-center">Join Us</h2>
+                <h2 className="text-3xl font-bold text-white text-center">Join Victory Celebration Band</h2>
                 <NavLink to='/' className='text-white/80 hover:text-white/70'>
                   <ArrowRight className='h-10 w-10 text-white cursor-pointer' />
                 </NavLink>
