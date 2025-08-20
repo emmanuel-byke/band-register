@@ -8,6 +8,7 @@ import AuthForm from "./features/auth/components/AuthForm";
 import Profile from "./Componets/Profile";
 import AdminSite from "./Componets/AdminSite";
 import RevealText from "./features/auth/components/Test";
+import { NewCommer } from "./features/welcome/NewCommer";
 
 
 
@@ -24,6 +25,7 @@ function App() {
           <Route path='/auth' Component={AuthForm} />
           <Route path='/userprofile' Component={Profile} />
           <Route path='/admin' Component={AdminSite} />
+          <Route path='/welcome' Component={NewCommer} />
         </Routes>
       </Router>
   )

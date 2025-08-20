@@ -18,3 +18,29 @@ export const SpinnerBtn = ({type='submit', loading=false, label}) => {
         </button>
     );
 }
+
+export const PrimaryButton = ({ onClick, children, disabled = false, className = '' }) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 
+                 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${className}`}
+    >
+      {children}
+    </button>
+  );
+};
+
+export const SecondaryButton = ({ onClick, children, disabled = false, className = '' }) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-lg font-medium 
+                 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${className}`}
+    >
+      {children}
+    </button>
+  );
+};

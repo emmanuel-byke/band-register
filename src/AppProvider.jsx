@@ -2,6 +2,11 @@ import React, { createContext, useState, useEffect } from "react";
 
 export const AppContext = createContext();
 export const AppProvider = ({children}) => {
+    const [showWelcome, setShowWelcome] = useState(() => {
+        const savedValue = localStorage.getItem('welcome-variable-bykes');
+        return savedValue !== null ? JSON.parse(savedValue) : true;
+    });
+
     const [currentInstr, setCurrentInstr] = useState(() => {
         const savedValue = localStorage.getItem('instruments-data-123-321-123-variable-bykes');
         return savedValue !== null ? JSON.parse(savedValue) : null;
@@ -32,6 +37,10 @@ export const AppProvider = ({children}) => {
     useEffect(() => {
         localStorage.setItem('instruments-data-123-321-123-variable-bykes', JSON.stringify(currentInstr));
     }, [currentInstr]);
+    
+    useEffect(() => {
+        localStorage.setItem('welcome-variable-bykes', JSON.stringify(showWelcome));
+    }, [showWelcome]);
 
     useEffect(() => {
         localStorage.setItem('rendered-instrument-data-123-321-123-variable-bykes-Hello_1', JSON.stringify(renderedInstr));
@@ -55,7 +64,7 @@ export const AppProvider = ({children}) => {
     }, [user]);
 
     return <AppContext.Provider value={{currentInstr, setCurrentInstr, loggedIn, setLoggedIn, userId, setUserId, user, setUser,
-        userChanged, setUserChanged, renderedInstr, setRenderedInstr
+        userChanged, setUserChanged, renderedInstr, setRenderedInstr, showWelcome, setShowWelcome
     }}>
         {children}
     </AppContext.Provider>
