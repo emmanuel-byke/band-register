@@ -43,13 +43,8 @@ export const getCSRFToken = async () => {
 // Request interceptor to add both JWT and CSRF tokens
 apiClient.interceptors.request.use(
   async (config) => {
-    // Add JWT access token from cookie (though our backend reads from cookie directly)
-    // This is here for completeness and future flexibility
-    const accessToken = Cookies.get('access_token');
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-
+    // JWT token is read from cookie by the backend, no need to add to headers
+    
     // Add CSRF token for state-changing operations
     if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())) {
       try {
@@ -73,47 +68,50 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
+    // Don't retry refresh token endpoint itself to avoid infinite loops
+    if (originalRequest.url?.includes('refresh-token')) {
+      return Promise.reject(error);
+    }
+    
     // Handle JWT token expiration (401 Unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
       try {
-        // Try to refresh the access token using refresh token
-        const refreshToken = Cookies.get('refresh_token');
-        if (refreshToken) {
-          const refreshResponse = await apiClient.post('accounts/refresh-token/', {
-            refresh: refreshToken
-          });
-          
-          // If refresh successful, retry original request
-          if (refreshResponse.status === 200) {
-            console.log('Token refreshed successfully');
-            return apiClient(originalRequest);
-          }
+        // Create a new axios instance without interceptors for the refresh request
+        const refreshClient = axios.create({
+          baseURL: BASE_URL,
+          withCredentials: true,
+        });
+        
+        // Try to refresh the access token
+        const refreshResponse = await refreshClient.post('accounts/refresh-token/');
+        
+        // If refresh successful, retry original request
+        if (refreshResponse.status === 200) {
+          console.log('Token refreshed successfully');
+          return apiClient(originalRequest);
         }
-        
-        // If no refresh token or refresh failed, redirect to login
-        console.warn('Token refresh failed, user needs to login again');
-        // Clear any stored tokens
-        Cookies.remove('access_token');
-        Cookies.remove('refresh_token');
-        
-        // You could dispatch a logout action here
-        // window.location.href = '/login';
-        
       } catch (refreshError) {
-        console.error('Token refresh error:', refreshError);
+        console.error('Token refresh failed, logging out user');
         // Clear tokens and redirect to login
         Cookies.remove('access_token');
         Cookies.remove('refresh_token');
+        Cookies.remove('csrftoken');
+        
+        // You could dispatch a logout action or redirect here
+        // window.location.href = '/login';
+        return Promise.reject(refreshError);
       }
     }
     
     // Handle CSRF token issues (403 Forbidden)
     if (error.response?.status === 403 && 
-        error.response?.data?.detail?.toLowerCase().includes('csrf')) {
+        (error.response?.data?.detail?.toLowerCase().includes('csrf') || 
+         error.response?.data?.message?.toLowerCase().includes('csrf'))) {
       console.warn('CSRF token invalid, clearing cache');
       csrfToken = '';
+      Cookies.remove('csrftoken');
       
       // Retry once with new CSRF token
       if (!originalRequest._csrfRetry) {
